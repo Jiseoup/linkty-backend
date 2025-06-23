@@ -1,5 +1,5 @@
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     email TEXT NOT NULL UNIQUE,
     password VARCHAR(128) NOT NULL,
     join_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
@@ -8,7 +8,7 @@ CREATE TABLE users (
 
 CREATE TABLE urls (
     id BIGSERIAL PRIMARY KEY,
-    user_id INTEGER,
+    user_id BIGINT,
     original_url TEXT NOT NULL,
     shorten_url VARCHAR(10) NOT NULL UNIQUE,
     click_count INTEGER NOT NULL DEFAULT 0,
