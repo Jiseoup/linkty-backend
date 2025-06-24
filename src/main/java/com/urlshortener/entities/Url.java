@@ -1,8 +1,18 @@
-package com.urlshortener.domain;
+package com.urlshortener.entities;
 
-import jakarta.persistence.*;
 import java.time.ZonedDateTime;
 
+import lombok.Getter;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
+import jakarta.persistence.*;
+
+@Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Entity
 @Table(name = "urls")
 public class Url {
@@ -19,18 +29,29 @@ public class Url {
     @Column(name = "original_url", nullable = false, columnDefinition = "TEXT")
     private String originalUrl;
 
-    @Column(name = "shorten_url", nullable = false, length = 10, unique = true)
+    @Column(name = "shorten_url", nullable = false, columnDefinition = "CHAR(8)", length = 8, unique = true)
     private String shortenUrl;
 
     @Column(name = "click_count", nullable = false)
-    private int clickCount = 0;
+    private int clickCount;
 
     @Column(name = "create_date", nullable = false)
-    private ZonedDateTime createDate = ZonedDateTime.now();
+    private ZonedDateTime createDate;
 
     @Column(name = "expire_date", nullable = true)
     private ZonedDateTime expireDate;
 
     @Column(name = "deleted", nullable = false)
-    private boolean deleted = false;
+    private boolean deleted;
+
+    @PrePersist
+    public void defaultValue() {
+        createDate = ZonedDateTime.now();
+        clickCount = 0;
+        deleted = false;
+    }
+
+    public void increaseClickCount() {
+        this.clickCount++;
+    }
 }

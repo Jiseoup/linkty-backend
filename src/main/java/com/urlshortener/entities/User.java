@@ -1,7 +1,8 @@
-package com.urlshortener.domain;
+package com.urlshortener.entities;
+
+import java.time.ZonedDateTime;
 
 import jakarta.persistence.*;
-import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "users")
@@ -12,7 +13,7 @@ public class User {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "email", nullable = false, unique = true, columnDefinition = "TEXT")
+    @Column(name = "email", nullable = false, columnDefinition = "TEXT", unique = true)
     private String email;
 
     @Column(name = "password", nullable = false, length = 128)

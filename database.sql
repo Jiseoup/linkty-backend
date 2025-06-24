@@ -10,7 +10,7 @@ CREATE TABLE urls (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT,
     original_url TEXT NOT NULL,
-    shorten_url VARCHAR(10) NOT NULL UNIQUE,
+    shorten_url CHAR(8) NOT NULL UNIQUE,
     click_count INTEGER NOT NULL DEFAULT 0,
     create_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     expire_date TIMESTAMP WITH TIME ZONE,

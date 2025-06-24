@@ -1,7 +1,8 @@
-package com.urlshortener.domain;
+package com.urlshortener.entities;
+
+import java.time.ZonedDateTime;
 
 import jakarta.persistence.*;
-import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "logs")
