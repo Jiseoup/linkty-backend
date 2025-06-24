@@ -51,6 +51,7 @@ public class Url {
         deleted = false;
     }
 
+    // Increase the clickCount.
     public void increaseClickCount() {
         this.clickCount++;
     }
