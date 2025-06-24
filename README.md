@@ -1,2 +1,2 @@
 # url-shortener
-[Spring Boot] URL Shortener Project
+URL Shortener Project
