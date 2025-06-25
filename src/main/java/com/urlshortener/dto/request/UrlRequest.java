@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 @Getter
 @Setter
 public class UrlRequest {
-    @NotBlank
+    @NotBlank(message = "Original URL is required.")
     private String originalUrl;
 
     private ZonedDateTime expireDate;
