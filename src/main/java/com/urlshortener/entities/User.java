@@ -2,8 +2,17 @@ package com.urlshortener.entities;
 
 import java.time.ZonedDateTime;
 
+import lombok.Getter;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import jakarta.persistence.*;
 
+@Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -20,5 +29,10 @@ public class User {
     private String password;
 
     @Column(name = "join_date", nullable = false)
-    private ZonedDateTime joinDate = ZonedDateTime.now();
+    private ZonedDateTime joinDate;
+
+    @PrePersist
+    public void defaultValue() {
+        joinDate = ZonedDateTime.now();
+    }
 }
