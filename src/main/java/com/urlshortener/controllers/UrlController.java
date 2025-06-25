@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.urlshortener.services.UrlService;
 import com.urlshortener.dto.request.UrlRequest;
 import com.urlshortener.dto.response.UrlResponse;
-import com.urlshortener.services.UrlService;
 
 @RestController
 @RequiredArgsConstructor
