@@ -4,10 +4,13 @@ import java.time.ZonedDateTime;
 
 import lombok.Getter;
 import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
 
 @Getter
 @Setter
 public class UrlRequest {
+    @NotBlank
     private String originalUrl;
+
     private ZonedDateTime expireDate;
 }

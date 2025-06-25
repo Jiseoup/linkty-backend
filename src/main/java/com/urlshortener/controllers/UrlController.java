@@ -1,5 +1,6 @@
 package com.urlshortener.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class UrlController {
 
     // Creates a shorten url with the original url provided in the request.
     @PostMapping("/shorten")
-    public ResponseEntity<UrlResponse> shorten(@RequestBody UrlRequest request) {
+    public ResponseEntity<UrlResponse> shorten(@RequestBody @Valid UrlRequest request) {
         UrlResponse response = urlService.createShortenUrl(request);
         return ResponseEntity.ok(response);
     }
