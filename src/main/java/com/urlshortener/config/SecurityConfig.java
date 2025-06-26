@@ -23,17 +23,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // Disable CSRF protection.
-            .csrf(AbstractHttpConfigurer::disable)
+                // Disable CSRF protection.
+                .csrf(AbstractHttpConfigurer::disable)
 
-            // Disable default HTTP Basic authentication dialog.
-            .httpBasic(AbstractHttpConfigurer::disable)
+                // Disable default HTTP Basic authentication dialog.
+                .httpBasic(AbstractHttpConfigurer::disable)
 
-            // Configure authorization rules for incoming HTTP requests.
-            .authorizeHttpRequests((authorize) -> authorize
-                    .requestMatchers("/shorten", "/{shortenUrl}", "/user/**").permitAll()
-                    .anyRequest().authenticated()
-            );
+                // Configure authorization rules for incoming HTTP requests.
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers(
+                                "/shorten",
+                                "/{shortenUrl}",
+                                "/user/register",
+                                "/user/login")
+                        .permitAll()
+                        .anyRequest().authenticated());
 
         return http.build();
     }
