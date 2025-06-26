@@ -1,5 +1,7 @@
 package com.urlshortener.controllers;
 
+import java.time.ZonedDateTime;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,10 @@ public class UrlController {
     // Creates a shorten url with the original url provided in the request.
     @PostMapping("/shorten")
     public ResponseEntity<UrlResponse> shorten(@RequestBody @Valid UrlRequest request) {
-        UrlResponse response = urlService.createShortenUrl(request);
+        String originalUrl = request.getOriginalUrl();
+        ZonedDateTime expireDate = request.getExpireDate();
+
+        UrlResponse response = urlService.createShortenUrl(originalUrl, expireDate);
         return ResponseEntity.ok(response);
     }
 
