@@ -31,8 +31,12 @@ public class User {
     @Column(name = "join_date", nullable = false)
     private ZonedDateTime joinDate;
 
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted;
+
     @PrePersist
     public void defaultValue() {
         joinDate = ZonedDateTime.now();
+        deleted = false;
     }
 }

@@ -2,7 +2,8 @@ CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     email TEXT NOT NULL UNIQUE,
     password VARCHAR(128) NOT NULL,
-    join_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    join_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 
@@ -15,7 +16,7 @@ CREATE TABLE urls (
     create_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     expire_date TIMESTAMP WITH TIME ZONE,
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    CONSTRAINT "fk_urls.user_id" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    CONSTRAINT "fk_urls.user_id" FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 
@@ -25,5 +26,5 @@ CREATE TABLE logs (
     click_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     ip_address VARCHAR(45) NOT NULL,
     client_info TEXT NOT NULL,
-    CONSTRAINT "fk_logs.url_id" FOREIGN KEY (url_id) REFERENCES urls(id) ON DELETE CASCADE
+    CONSTRAINT "fk_logs.url_id" FOREIGN KEY (url_id) REFERENCES urls(id)
 );
