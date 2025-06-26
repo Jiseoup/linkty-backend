@@ -1,6 +1,7 @@
 package com.urlshortener.services;
 
 import lombok.RequiredArgsConstructor;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -12,8 +13,8 @@ import com.urlshortener.jwt.JwtProvider;
 import com.urlshortener.jwt.RefreshToken;
 import com.urlshortener.jwt.RefreshTokenRepository;
 import com.urlshortener.repositories.UserRepository;
-import com.urlshortener.dto.request.RegisterRequest;
 import com.urlshortener.dto.response.RegisterResponse;
+import com.urlshortener.dto.response.WithdrawResponse;
 import com.urlshortener.dto.response.LoginResponse;
 
 @Service
@@ -29,26 +30,46 @@ public class UserService {
     private final JwtProvider jwtProvider;
 
     // Creates a new user account.
-    public RegisterResponse createAccount(RegisterRequest request) {
+    @Transactional
+    public RegisterResponse createAccount(String email, String password) {
         // Check if the requested email already exists.
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(email)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This email is already in use.");
         }
 
         // Build and save the User entity.
         User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .email(email)
+                .password(passwordEncoder.encode(password))
                 .build();
         userRepository.save(user);
 
         return new RegisterResponse(user.getEmail(), user.getJoinDate());
     }
 
+    // Deletes a user account.
+    @Transactional
+    public WithdrawResponse deleteAccount(String email, String password) {
+        // Retrieve the User entity by email.
+        User user = userRepository.findByEmailAndDeletedFalse(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "User email not found."));
+
+        // Validate user password.
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Incorrect password.");
+        }
+
+        // Delete user.
+        user.setDeleted(true);
+
+        return new WithdrawResponse("User account deleted successfully.");
+    }
+
     // Handles user login process.
     public LoginResponse userLogin(String email, String password) {
         // Retrieve the User entity by email.
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndDeletedFalse(email)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.UNAUTHORIZED, "Invalid email or password."));
 

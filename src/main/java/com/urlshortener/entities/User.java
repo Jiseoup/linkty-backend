@@ -39,4 +39,9 @@ public class User {
         joinDate = ZonedDateTime.now();
         deleted = false;
     }
+
+    // Set deleted field as true or false.
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
 }
