@@ -2,7 +2,6 @@ package com.urlshortener.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +34,6 @@ public class UserController {
 
     // User withdrawal.
     @DeleteMapping("/withdraw")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<WithdrawResponse> withdraw(@RequestBody @Valid WithdrawRequest request) {
         String email = request.getEmail();
         String password = request.getPassword();

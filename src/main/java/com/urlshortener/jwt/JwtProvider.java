@@ -2,6 +2,7 @@ package com.urlshortener.jwt;
 
 import java.util.Date;
 import java.security.Key;
+import java.util.Collections;
 import java.nio.charset.StandardCharsets;
 
 import io.jsonwebtoken.*;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 @Component
 public class JwtProvider {
@@ -48,6 +51,28 @@ public class JwtProvider {
                 .setExpiration(new Date(date.getTime() + validity))
                 .signWith(key)
                 .compact();
+    }
+
+    // Validate JWT token.
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    // Get authentication object from token.
+    public Authentication getAuthentication(String token) {
+        String email = getEmailFromToken(token);
+        return new UsernamePasswordAuthenticationToken(
+                email,
+                null,
+                Collections.emptyList());
     }
 
     // Get email from the JWT token.
