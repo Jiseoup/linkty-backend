@@ -13,6 +13,7 @@ import com.urlshortener.dto.request.RefreshTokenRequest;
 import com.urlshortener.dto.response.RegisterResponse;
 import com.urlshortener.dto.response.WithdrawResponse;
 import com.urlshortener.dto.response.LoginResponse;
+import com.urlshortener.dto.response.LogoutResponse;
 import com.urlshortener.dto.response.RefreshTokenResponse;
 
 @RestController
@@ -49,6 +50,13 @@ public class UserController {
         String password = request.getPassword();
 
         LoginResponse response = userService.userLogin(email, password);
+        return ResponseEntity.ok(response);
+    }
+
+    // User logout.
+    @PostMapping("/logout")
+    public ResponseEntity<LogoutResponse> logout(@RequestHeader("Authorization") String authorizationHeader) {
+        LogoutResponse response = userService.userLogout(authorizationHeader);
         return ResponseEntity.ok(response);
     }
 

@@ -25,7 +25,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
 
         // Get token from authorization header.
-        String token = resolveToken(request);
+        String authorizationHeader = request.getHeader("Authorization");
+        String token = jwtProvider.resolveToken(authorizationHeader);
 
         // Validate the token and set authentication.
         if (token != null && jwtProvider.validateToken(token)) {
@@ -34,16 +35,5 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    // Extract bearer token from the authorization header.
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-
-        // Validate and extract the token value from the bearer header.
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
     }
 }

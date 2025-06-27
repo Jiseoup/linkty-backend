@@ -66,6 +66,15 @@ public class JwtProvider {
         }
     }
 
+    // Extract bearer token from the authorization header.
+    public String resolveToken(String token) {
+        // Validate and extract the token.
+        if (token != null && token.startsWith("Bearer ")) {
+            return token.substring(7);
+        }
+        return null;
+    }
+
     // Get authentication object from token.
     public Authentication getAuthentication(String token) {
         String email = getEmailFromToken(token);

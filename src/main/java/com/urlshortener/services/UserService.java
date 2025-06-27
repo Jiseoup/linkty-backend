@@ -16,6 +16,7 @@ import com.urlshortener.repositories.RefreshTokenRepository;
 import com.urlshortener.dto.response.RegisterResponse;
 import com.urlshortener.dto.response.WithdrawResponse;
 import com.urlshortener.dto.response.LoginResponse;
+import com.urlshortener.dto.response.LogoutResponse;
 import com.urlshortener.dto.response.RefreshTokenResponse;
 
 @Service
@@ -35,7 +36,8 @@ public class UserService {
     public RegisterResponse createAccount(String email, String password) {
         // Check if the requested email already exists.
         if (userRepository.existsByEmail(email)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "This email is already in use.");
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "This email is already in use.");
         }
 
         // Build and save the User entity.
@@ -94,14 +96,33 @@ public class UserService {
         return new LoginResponse(accessToken, refreshToken);
     }
 
+    // Handles user logout process.
+    public LogoutResponse userLogout(String authorizationHeader) {
+        // Extract and validate the token from the authorization header.
+        String token = jwtProvider.resolveToken(authorizationHeader);
+        if (token == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Token is invalid or missing.");
+        }
+
+        // Get email from the provided token.
+        String email = jwtProvider.getEmailFromToken(token);
+
+        // Delete refresh token from Redis.
+        refreshTokenRepository.deleteById(email);
+
+        return new LogoutResponse("User logged out successfully.");
+    }
+
     // Refresh access token using a valid refresh token.
     public RefreshTokenResponse refreshToken(String refreshToken) {
         // Get email from the refresh token.
         String email = jwtProvider.getEmailFromToken(refreshToken);
 
         // Retrieve the refresh token stored in Redis by email.
-        RefreshToken redisRefreshToken = refreshTokenRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
+        RefreshToken redisRefreshToken = refreshTokenRepository.findById(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
 
         // Validate refresh token.
         if (!redisRefreshToken.getToken().equals(refreshToken)) {
