@@ -1,4 +1,4 @@
-package com.urlshortener.jwt;
+package com.urlshortener.entities;
 
 import java.io.Serializable;
 

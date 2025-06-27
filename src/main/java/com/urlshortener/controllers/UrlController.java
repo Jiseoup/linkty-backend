@@ -31,6 +31,7 @@ public class UrlController {
     @GetMapping("/{shortenUrl}")
     public ResponseEntity<Void> redirect(@PathVariable String shortenUrl) {
         String originalUrl = urlService.retrieveOriginalUrl(shortenUrl);
+
         return ResponseEntity.status(302).header("Location", originalUrl).build();
     }
 }

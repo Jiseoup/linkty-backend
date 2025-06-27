@@ -10,9 +10,11 @@ import com.urlshortener.services.UserService;
 import com.urlshortener.dto.request.RegisterRequest;
 import com.urlshortener.dto.request.WithdrawRequest;
 import com.urlshortener.dto.request.LoginRequest;
+import com.urlshortener.dto.request.RefreshTokenRequest;
 import com.urlshortener.dto.response.RegisterResponse;
 import com.urlshortener.dto.response.WithdrawResponse;
 import com.urlshortener.dto.response.LoginResponse;
+import com.urlshortener.dto.response.RefreshTokenResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,6 +51,15 @@ public class UserController {
         String password = request.getPassword();
 
         LoginResponse response = userService.userLogin(email, password);
+        return ResponseEntity.ok(response);
+    }
+
+    // Reissue access token.
+    @PostMapping("/refresh-token")
+    public ResponseEntity<RefreshTokenResponse> refresh(@RequestBody @Valid RefreshTokenRequest request) {
+        String refreshToken = request.getRefreshToken();
+
+        RefreshTokenResponse response = userService.refreshToken(refreshToken);
         return ResponseEntity.ok(response);
     }
 }

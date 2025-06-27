@@ -8,6 +8,8 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 @Component
 public class JwtProvider {
@@ -18,10 +20,9 @@ public class JwtProvider {
 
     // Constructor that initializes the secret key and token validity durations.
     public JwtProvider(
-        @Value("${jwt.secret-key}") String secretKey,
-        @Value("${jwt.access-token-validity}") long accessTokenValidity,
-        @Value("${jwt.refresh-token-validity}") long refreshTokenValidity
-    ) {
+            @Value("${jwt.secret-key}") String secretKey,
+            @Value("${jwt.access-token-validity}") long accessTokenValidity,
+            @Value("${jwt.refresh-token-validity}") long refreshTokenValidity) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         this.accessTokenValidity = accessTokenValidity;
         this.refreshTokenValidity = refreshTokenValidity;
@@ -47,5 +48,21 @@ public class JwtProvider {
                 .setExpiration(new Date(date.getTime() + validity))
                 .signWith(key)
                 .compact();
+    }
+
+    // Get email from the JWT token.
+    public String getEmailFromToken(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+        } catch (ExpiredJwtException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "JWT token has expired.");
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid JWT token.");
+        }
     }
 }

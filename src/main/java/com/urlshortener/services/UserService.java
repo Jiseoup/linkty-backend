@@ -9,13 +9,14 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.urlshortener.entities.User;
+import com.urlshortener.entities.RefreshToken;
 import com.urlshortener.jwt.JwtProvider;
-import com.urlshortener.jwt.RefreshToken;
-import com.urlshortener.jwt.RefreshTokenRepository;
 import com.urlshortener.repositories.UserRepository;
+import com.urlshortener.repositories.RefreshTokenRepository;
 import com.urlshortener.dto.response.RegisterResponse;
 import com.urlshortener.dto.response.WithdrawResponse;
 import com.urlshortener.dto.response.LoginResponse;
+import com.urlshortener.dto.response.RefreshTokenResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -91,5 +92,25 @@ public class UserService {
         refreshTokenRepository.save(redisRefreshToken);
 
         return new LoginResponse(accessToken, refreshToken);
+    }
+
+    // Refresh access token using a valid refresh token.
+    public RefreshTokenResponse refreshToken(String refreshToken) {
+        // Get email from the refresh token.
+        String email = jwtProvider.getEmailFromToken(refreshToken);
+
+        // Retrieve the refresh token stored in Redis by email.
+        RefreshToken redisRefreshToken = refreshTokenRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
+
+        // Validate refresh token.
+        if (!redisRefreshToken.getToken().equals(refreshToken)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token mismatch.");
+        }
+
+        // Generate new access token.
+        String accessToken = jwtProvider.generateAccessToken(email);
+
+        return new RefreshTokenResponse(accessToken);
     }
 }
