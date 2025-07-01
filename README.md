@@ -1,2 +1,2 @@
-# url-shortener
-URL Shortener Project
+# Linkty
+Linkty - Free URL Shortener.
