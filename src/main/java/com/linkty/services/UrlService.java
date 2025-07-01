@@ -22,8 +22,8 @@ public class UrlService {
     // Creates a new shorten url based on the original url.
     @Transactional
     public UrlResponse createShortenUrl(String originalUrl, ZonedDateTime expireDate) {
-        // Creates an 8-digit uuid for shorten url.
-        String uuid = UUID.randomUUID().toString().substring(0, 8);
+        // Creates an 6-character uuid for shorten url.
+        String uuid = UUID.randomUUID().toString().substring(0, 6);
 
         // Build and save the Url entity.
         Url url = Url.builder()

@@ -18,7 +18,7 @@ public class UrlController {
     private final UrlService urlService;
 
     // Creates a shorten url with the original url provided in the request.
-    @PostMapping("/shorten")
+    @PostMapping("/shorten-url")
     public ResponseEntity<UrlResponse> shorten(@RequestBody @Valid UrlRequest request) {
         String originalUrl = request.getOriginalUrl();
         ZonedDateTime expireDate = request.getExpireDate();

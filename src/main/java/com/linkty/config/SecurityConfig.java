@@ -43,7 +43,7 @@ public class SecurityConfig {
                 // Configure authorization rules for incoming HTTP requests.
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(
-                                "/shorten",
+                                "/shorten-url",
                                 "/{shortenUrl}",
                                 "/user/register",
                                 "/user/login")
