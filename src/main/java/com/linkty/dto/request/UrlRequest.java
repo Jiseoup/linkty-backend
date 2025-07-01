@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 
 @Getter
 public class UrlRequest {
+    private String alias;
+
     @NotBlank(message = "Original URL is required.")
     private String originalUrl;
 

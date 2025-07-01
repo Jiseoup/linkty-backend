@@ -21,12 +21,13 @@ public class UrlService {
 
     // Creates a new shorten url based on the original url.
     @Transactional
-    public UrlResponse createShortenUrl(String originalUrl, ZonedDateTime expireDate) {
+    public UrlResponse createShortenUrl(String alias, String originalUrl, ZonedDateTime expireDate) {
         // Creates an 6-character code for the shorten url.
         String code = CodeGenerator.generate(6);
 
         // Build and save the Url entity.
         Url url = Url.builder()
+                .alias(alias)
                 .originalUrl(originalUrl)
                 .shortenUrl(code)
                 .expireDate(expireDate)

@@ -26,6 +26,9 @@ public class Url {
     @JoinColumn(name = "user_id", nullable = true, foreignKey = @ForeignKey(name = "fk_urls.user_id"))
     private User user;
 
+    @Column(name = "alias", nullable = true, length = 20)
+    private String alias;
+
     @Column(name = "original_url", nullable = false, columnDefinition = "TEXT")
     private String originalUrl;
 
