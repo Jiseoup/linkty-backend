@@ -1,6 +1,5 @@
 package com.linkty.services;
 
-import java.util.UUID;
 import java.time.ZonedDateTime;
 
 import lombok.RequiredArgsConstructor;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.linkty.utils.CodeGenerator;
 import com.linkty.dto.response.UrlResponse;
 import com.linkty.entities.Url;
 import com.linkty.repositories.UrlRepository;
@@ -22,18 +22,18 @@ public class UrlService {
     // Creates a new shorten url based on the original url.
     @Transactional
     public UrlResponse createShortenUrl(String originalUrl, ZonedDateTime expireDate) {
-        // Creates an 6-character uuid for shorten url.
-        String uuid = UUID.randomUUID().toString().substring(0, 6);
+        // Creates an 6-character code for the shorten url.
+        String code = CodeGenerator.generate(6);
 
         // Build and save the Url entity.
         Url url = Url.builder()
                 .originalUrl(originalUrl)
-                .shortenUrl(uuid)
+                .shortenUrl(code)
                 .expireDate(expireDate)
                 .build();
         urlRepository.save(url);
 
-        return new UrlResponse(uuid, expireDate);
+        return new UrlResponse(code, expireDate);
     }
 
     // Retrieves the original url associated with a given shorten url.
