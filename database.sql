@@ -13,9 +13,10 @@ CREATE TABLE urls (
     alias VARCHAR(20),
     original_url TEXT NOT NULL,
     shorten_url CHAR(8) NOT NULL UNIQUE,
+    start_date TIMESTAMP WITH TIME ZONE,
+    expire_date TIMESTAMP WITH TIME ZONE,
     click_count INTEGER NOT NULL DEFAULT 0,
     create_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    expire_date TIMESTAMP WITH TIME ZONE,
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
     CONSTRAINT "fk_urls.user_id" FOREIGN KEY (user_id) REFERENCES users(id)
 );

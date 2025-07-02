@@ -35,14 +35,17 @@ public class Url {
     @Column(name = "shorten_url", nullable = false, columnDefinition = "CHAR(8)", length = 8, unique = true)
     private String shortenUrl;
 
+    @Column(name = "start_date", nullable = true)
+    private ZonedDateTime startDate;
+
+    @Column(name = "expire_date", nullable = true)
+    private ZonedDateTime expireDate;
+
     @Column(name = "click_count", nullable = false)
     private int clickCount;
 
     @Column(name = "create_date", nullable = false)
     private ZonedDateTime createDate;
-
-    @Column(name = "expire_date", nullable = true)
-    private ZonedDateTime expireDate;
 
     @Column(name = "deleted", nullable = false)
     private boolean deleted;
