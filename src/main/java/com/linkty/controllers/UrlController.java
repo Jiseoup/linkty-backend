@@ -22,9 +22,10 @@ public class UrlController {
     public ResponseEntity<UrlResponse> shorten(@RequestBody @Valid UrlRequest request) {
         String alias = request.getAlias();
         String originalUrl = request.getOriginalUrl();
+        ZonedDateTime activeDate = request.getActiveDate();
         ZonedDateTime expireDate = request.getExpireDate();
 
-        UrlResponse response = urlService.createShortenUrl(alias, originalUrl, expireDate);
+        UrlResponse response = urlService.createShortenUrl(alias, originalUrl, activeDate, expireDate);
         return ResponseEntity.ok(response);
     }
 

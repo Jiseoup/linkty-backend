@@ -12,5 +12,7 @@ public class UrlRequest {
     @NotBlank(message = "Original URL is required.")
     private String originalUrl;
 
+    private ZonedDateTime activeDate;
+
     private ZonedDateTime expireDate;
 }

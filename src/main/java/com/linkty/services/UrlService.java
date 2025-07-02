@@ -21,20 +21,21 @@ public class UrlService {
 
     // Creates a new shorten url based on the original url.
     @Transactional
-    public UrlResponse createShortenUrl(String alias, String originalUrl, ZonedDateTime expireDate) {
-        // Creates an 6-character code for the shorten url.
-        String code = CodeGenerator.generate(6);
+    public UrlResponse createShortenUrl(String alias, String originalUrl, ZonedDateTime activeDate, ZonedDateTime expireDate) {
+        // Creates an 6-character shorten url.
+        String shortenUrl = CodeGenerator.generate(6);
 
         // Build and save the Url entity.
         Url url = Url.builder()
                 .alias(alias)
                 .originalUrl(originalUrl)
-                .shortenUrl(code)
+                .shortenUrl(shortenUrl)
+                .activeDate(activeDate)
                 .expireDate(expireDate)
                 .build();
         urlRepository.save(url);
 
-        return new UrlResponse(code, expireDate);
+        return new UrlResponse(shortenUrl, activeDate, expireDate);
     }
 
     // Retrieves the original url associated with a given shorten url.
@@ -45,9 +46,17 @@ public class UrlService {
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "This URL does not exist."));
 
+        // Check if the url has activated.
+        ZonedDateTime activeDate = url.getActiveDate();
+        if (activeDate != null && activeDate.isAfter(ZonedDateTime.now())) {
+            // TODO: 추후 예외 처리 페이지로 이동하도록 처리 필요.
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This URL has not activated yet.");
+        }
+
         // Check if the url has expired.
         ZonedDateTime expireDate = url.getExpireDate();
         if (expireDate != null && expireDate.isBefore(ZonedDateTime.now())) {
+            // TODO: 추후 예외 처리 페이지로 이동하도록 처리 필요.
             throw new ResponseStatusException(HttpStatus.GONE, "This URL has expired.");
         }
 
