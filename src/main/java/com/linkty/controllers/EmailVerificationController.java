@@ -17,7 +17,8 @@ public class EmailVerificationController {
 
     // Send email with verification code.
     @PostMapping("/verify-email")
-    public ResponseEntity<MessageResponse> verify(@RequestBody @Valid EmailVerificationRequest request) {
+    public ResponseEntity<MessageResponse> verify(
+            @RequestBody @Valid EmailVerificationRequest request) {
         String email = request.getEmail();
 
         MessageResponse response = emailVerificationService.verifyEmail(email);

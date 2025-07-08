@@ -19,13 +19,15 @@ public class UrlController {
 
     // Creates a shorten url with the original url provided in the request.
     @PostMapping("/shorten-url")
-    public ResponseEntity<UrlResponse> shorten(@RequestBody @Valid UrlRequest request) {
+    public ResponseEntity<UrlResponse> shorten(
+            @RequestBody @Valid UrlRequest request) {
         String alias = request.getAlias();
         String originalUrl = request.getOriginalUrl();
         ZonedDateTime activeDate = request.getActiveDate();
         ZonedDateTime expireDate = request.getExpireDate();
 
-        UrlResponse response = urlService.createShortenUrl(alias, originalUrl, activeDate, expireDate);
+        UrlResponse response = urlService.createShortenUrl(alias, originalUrl,
+                activeDate, expireDate);
         return ResponseEntity.ok(response);
     }
 
@@ -34,6 +36,7 @@ public class UrlController {
     public ResponseEntity<Void> redirect(@PathVariable String shortenUrl) {
         String originalUrl = urlService.retrieveOriginalUrl(shortenUrl);
 
-        return ResponseEntity.status(302).header("Location", originalUrl).build();
+        return ResponseEntity.status(302).header("Location", originalUrl)
+                .build();
     }
 }

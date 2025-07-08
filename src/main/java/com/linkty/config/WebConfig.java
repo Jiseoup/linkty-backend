@@ -11,16 +11,16 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
 
-            // Allow requests from specified origins. (TEMPORARY)
-            .allowedOrigins("http://localhost:3000", "http://linkty.kr")
+                // Allow requests from specified origins. (TEMPORARY)
+                .allowedOrigins("http://localhost:3000", "http://linkty.kr")
 
-            // Allow all HTTP methods.
-            .allowedMethods("*")
+                // Allow all HTTP methods.
+                .allowedMethods("*")
 
-            // Allow all headers in the request.
-            .allowedHeaders("*")
+                // Allow all headers in the request.
+                .allowedHeaders("*")
 
-            // Allow credentials. (ex. cookies, authorization headers)
-            .allowCredentials(true);
+                // Allow credentials. (ex. cookies, authorization headers)
+                .allowCredentials(true);
     }
 }

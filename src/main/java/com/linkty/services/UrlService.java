@@ -21,18 +21,15 @@ public class UrlService {
 
     // Creates a new shorten url based on the original url.
     @Transactional
-    public UrlResponse createShortenUrl(String alias, String originalUrl, ZonedDateTime activeDate, ZonedDateTime expireDate) {
+    public UrlResponse createShortenUrl(String alias, String originalUrl,
+            ZonedDateTime activeDate, ZonedDateTime expireDate) {
         // Creates an 6-character shorten url.
         String shortenUrl = CodeGenerator.generateAlphanumeric(6);
 
         // Build and save the Url entity.
-        Url url = Url.builder()
-                .alias(alias)
-                .originalUrl(originalUrl)
-                .shortenUrl(shortenUrl)
-                .activeDate(activeDate)
-                .expireDate(expireDate)
-                .build();
+        Url url = Url.builder().alias(alias).originalUrl(originalUrl)
+                .shortenUrl(shortenUrl).activeDate(activeDate)
+                .expireDate(expireDate).build();
         urlRepository.save(url);
 
         return new UrlResponse(shortenUrl, activeDate, expireDate);
@@ -42,22 +39,24 @@ public class UrlService {
     @Transactional
     public String retrieveOriginalUrl(String shortenUrl) {
         // Retrieve the Url entity by shorten url.
-        Url url = urlRepository.findByShortenUrl(shortenUrl)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "This URL does not exist."));
+        Url url = urlRepository.findByShortenUrl(shortenUrl).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "This URL does not exist."));
 
         // Check if the url has activated.
         ZonedDateTime activeDate = url.getActiveDate();
         if (activeDate != null && activeDate.isAfter(ZonedDateTime.now())) {
             // TODO: 추후 예외 처리 페이지로 이동하도록 처리 필요.
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This URL has not activated yet.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "This URL has not activated yet.");
         }
 
         // Check if the url has expired.
         ZonedDateTime expireDate = url.getExpireDate();
         if (expireDate != null && expireDate.isBefore(ZonedDateTime.now())) {
             // TODO: 추후 예외 처리 페이지로 이동하도록 처리 필요.
-            throw new ResponseStatusException(HttpStatus.GONE, "This URL has expired.");
+            throw new ResponseStatusException(HttpStatus.GONE,
+                    "This URL has expired.");
         }
 
         // Increase the click count.

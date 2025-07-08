@@ -22,7 +22,8 @@ public class User {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "email", nullable = false, columnDefinition = "TEXT", unique = true)
+    @Column(name = "email", nullable = false, columnDefinition = "TEXT",
+            unique = true)
     private String email;
 
     @Column(name = "password", nullable = false, length = 128)

@@ -22,7 +22,8 @@ public class UserController {
 
     // User registration.
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(@RequestBody @Valid UserRequest request) {
+    public ResponseEntity<RegisterResponse> register(
+            @RequestBody @Valid UserRequest request) {
         String email = request.getEmail();
         String password = request.getPassword();
 
@@ -32,7 +33,8 @@ public class UserController {
 
     // User withdrawal.
     @DeleteMapping("/withdraw")
-    public ResponseEntity<MessageResponse> withdraw(@RequestBody @Valid UserRequest request) {
+    public ResponseEntity<MessageResponse> withdraw(
+            @RequestBody @Valid UserRequest request) {
         String email = request.getEmail();
         String password = request.getPassword();
 
@@ -42,7 +44,8 @@ public class UserController {
 
     // User login.
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody @Valid UserRequest request) {
+    public ResponseEntity<LoginResponse> login(
+            @RequestBody @Valid UserRequest request) {
         String email = request.getEmail();
         String password = request.getPassword();
 
@@ -52,14 +55,16 @@ public class UserController {
 
     // User logout.
     @PostMapping("/logout")
-    public ResponseEntity<MessageResponse> logout(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<MessageResponse> logout(
+            @RequestHeader("Authorization") String authorizationHeader) {
         MessageResponse response = userService.userLogout(authorizationHeader);
         return ResponseEntity.ok(response);
     }
 
     // Reissue access token.
     @PostMapping("/refresh-token")
-    public ResponseEntity<RefreshTokenResponse> refresh(@RequestBody @Valid RefreshTokenRequest request) {
+    public ResponseEntity<RefreshTokenResponse> refresh(
+            @RequestBody @Valid RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
 
         RefreshTokenResponse response = userService.refreshToken(refreshToken);

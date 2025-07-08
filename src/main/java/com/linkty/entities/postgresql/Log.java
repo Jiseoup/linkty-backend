@@ -14,7 +14,8 @@ public class Log {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "url_id", nullable = false, foreignKey = @ForeignKey(name = "fk_logs.url_id"))
+    @JoinColumn(name = "url_id", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_logs.url_id"))
     private Url url;
 
     @Column(name = "click_date", nullable = false)

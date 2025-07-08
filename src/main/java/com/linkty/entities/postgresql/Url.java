@@ -23,7 +23,8 @@ public class Url {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = true, foreignKey = @ForeignKey(name = "fk_urls.user_id"))
+    @JoinColumn(name = "user_id", nullable = true,
+            foreignKey = @ForeignKey(name = "fk_urls.user_id"))
     private User user;
 
     @Column(name = "alias", nullable = true, length = 20)
@@ -32,7 +33,8 @@ public class Url {
     @Column(name = "original_url", nullable = false, columnDefinition = "TEXT")
     private String originalUrl;
 
-    @Column(name = "shorten_url", nullable = false, columnDefinition = "CHAR(8)", length = 8, unique = true)
+    @Column(name = "shorten_url", nullable = false,
+            columnDefinition = "CHAR(8)", length = 8, unique = true)
     private String shortenUrl;
 
     @Column(name = "active_date", nullable = true)

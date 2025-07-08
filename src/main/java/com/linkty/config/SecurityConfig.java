@@ -38,19 +38,19 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
 
                 // Disable session creation, use stateless JWT authentication.
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 // Configure authorization rules for incoming HTTP requests.
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers(
-                                "/{shortenUrl}",
-                                "/shorten-url",
-                                "/verify-email",
-                                "/user/register",
+                        .requestMatchers("/{shortenUrl}", "/shorten-url",
+                                "/verify-email", "/user/register",
                                 "/user/login")
-                        .permitAll()
-                        .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                        .permitAll().anyRequest().authenticated())
+
+                // Add JWT authentication filter before UsernamePasswordAuthenticationFilter.
+                .addFilterBefore(jwtAuthFilter,
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

@@ -22,11 +22,11 @@ public class JwtProvider {
     private final long refreshTokenValidity;
 
     // Constructor that initializes the secret key and token validity durations.
-    public JwtProvider(
-            @Value("${jwt.secret-key}") String secretKey,
+    public JwtProvider(@Value("${jwt.secret-key}") String secretKey,
             @Value("${jwt.access-token-validity}") long accessTokenValidity,
             @Value("${jwt.refresh-token-validity}") long refreshTokenValidity) {
-        this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+        this.key =
+                Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         this.accessTokenValidity = accessTokenValidity;
         this.refreshTokenValidity = refreshTokenValidity;
     }
@@ -44,21 +44,16 @@ public class JwtProvider {
     // Common method to generate JWT tokens.
     private String generateToken(String email, long validity) {
         Date date = new Date();
-        return Jwts.builder()
-                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                .setSubject(email)
-                .setIssuedAt(date)
+        return Jwts.builder().setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setSubject(email).setIssuedAt(date)
                 .setExpiration(new Date(date.getTime() + validity))
-                .signWith(key)
-                .compact();
+                .signWith(key).compact();
     }
 
     // Validate JWT token.
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
+            Jwts.parserBuilder().setSigningKey(key).build()
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
@@ -78,25 +73,21 @@ public class JwtProvider {
     // Get authentication object from token.
     public Authentication getAuthentication(String token) {
         String email = getEmailFromToken(token);
-        return new UsernamePasswordAuthenticationToken(
-                email,
-                null,
+        return new UsernamePasswordAuthenticationToken(email, null,
                 Collections.emptyList());
     }
 
     // Get email from the JWT token.
     public String getEmailFromToken(String token) {
         try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
+            return Jwts.parserBuilder().setSigningKey(key).build()
+                    .parseClaimsJws(token).getBody().getSubject();
         } catch (ExpiredJwtException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "JWT token has expired.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "JWT token has expired.");
         } catch (JwtException | IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid JWT token.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "Invalid JWT token.");
         }
     }
 }
