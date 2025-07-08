@@ -43,13 +43,14 @@ public class SecurityConfig {
                 // Configure authorization rules for incoming HTTP requests.
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(
-                                "/shorten-url",
                                 "/{shortenUrl}",
+                                "/shorten-url",
+                                "/verify-email",
                                 "/user/register",
                                 "/user/login")
                         .permitAll()
                         .anyRequest().authenticated())
-                        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

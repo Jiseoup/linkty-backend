@@ -9,8 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.linkty.utils.CodeGenerator;
-import com.linkty.dto.response.UrlResponse;
 import com.linkty.entities.postgresql.Url;
+import com.linkty.dto.response.UrlResponse;
 import com.linkty.repositories.UrlRepository;
 
 @Service
@@ -23,7 +23,7 @@ public class UrlService {
     @Transactional
     public UrlResponse createShortenUrl(String alias, String originalUrl, ZonedDateTime activeDate, ZonedDateTime expireDate) {
         // Creates an 6-character shorten url.
-        String shortenUrl = CodeGenerator.generate(6);
+        String shortenUrl = CodeGenerator.generateAlphanumeric(6);
 
         // Build and save the Url entity.
         Url url = Url.builder()

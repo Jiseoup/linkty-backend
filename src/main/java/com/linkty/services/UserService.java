@@ -6,31 +6,29 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.linkty.dto.response.LoginResponse;
-import com.linkty.dto.response.LogoutResponse;
-import com.linkty.dto.response.RefreshTokenResponse;
-import com.linkty.dto.response.RegisterResponse;
-import com.linkty.dto.response.WithdrawResponse;
+import com.linkty.jwt.JwtProvider;
 import com.linkty.entities.postgresql.User;
 import com.linkty.entities.redis.RefreshToken;
-import com.linkty.jwt.JwtProvider;
-import com.linkty.repositories.RefreshTokenRepository;
+import com.linkty.dto.response.MessageResponse;
+import com.linkty.dto.response.LoginResponse;
+import com.linkty.dto.response.RegisterResponse;
+import com.linkty.dto.response.RefreshTokenResponse;
 import com.linkty.repositories.UserRepository;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.linkty.repositories.RefreshTokenRepository;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    @Value("${redis.ttl}")
+    @Value("${redis.refresh-token-ttl}")
     private long timeToLive;
 
+    private final JwtProvider jwtProvider;
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtProvider jwtProvider;
 
     // Creates a new user account.
     @Transactional
@@ -53,7 +51,7 @@ public class UserService {
 
     // Deletes a user account.
     @Transactional
-    public WithdrawResponse deleteAccount(String email, String password) {
+    public MessageResponse deleteAccount(String email, String password) {
         // Retrieve the User entity by email.
         User user = userRepository.findByEmailAndDeletedFalse(email)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -67,7 +65,7 @@ public class UserService {
         // Delete user.
         user.setDeleted(true);
 
-        return new WithdrawResponse("User account deleted successfully.");
+        return new MessageResponse("User account deleted successfully.");
     }
 
     // Handles user login process.
@@ -98,7 +96,7 @@ public class UserService {
     }
 
     // Handles user logout process.
-    public LogoutResponse userLogout(String authorizationHeader) {
+    public MessageResponse userLogout(String authorizationHeader) {
         // Extract and validate the token from the authorization header.
         String token = jwtProvider.resolveToken(authorizationHeader);
         if (token == null) {
@@ -112,7 +110,7 @@ public class UserService {
         // Delete refresh token from Redis.
         refreshTokenRepository.deleteById(email);
 
-        return new LogoutResponse("User logged out successfully.");
+        return new MessageResponse("User logged out successfully.");
     }
 
     // Refresh access token using a valid refresh token.
