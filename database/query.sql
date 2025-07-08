@@ -1,3 +1,4 @@
+-- Users table.
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     email TEXT NOT NULL UNIQUE,
@@ -7,6 +8,7 @@ CREATE TABLE users (
 );
 
 
+-- Urls table.
 CREATE TABLE urls (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT,
@@ -22,6 +24,7 @@ CREATE TABLE urls (
 );
 
 
+-- Logs table.
 CREATE TABLE logs (
     id BIGSERIAL PRIMARY KEY,
     url_id BIGINT NOT NULL,

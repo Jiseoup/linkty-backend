@@ -1,4 +1,4 @@
-package com.linkty.entities;
+package com.linkty.entities.postgresql;
 
 import java.time.ZonedDateTime;
 

@@ -10,7 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.linkty.utils.CodeGenerator;
 import com.linkty.dto.response.UrlResponse;
-import com.linkty.entities.Url;
+import com.linkty.entities.postgresql.Url;
 import com.linkty.repositories.UrlRepository;
 
 @Service

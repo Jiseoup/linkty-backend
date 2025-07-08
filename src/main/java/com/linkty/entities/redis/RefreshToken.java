@@ -1,4 +1,4 @@
-package com.linkty.entities;
+package com.linkty.entities.redis;
 
 import java.io.Serializable;
 
