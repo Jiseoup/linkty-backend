@@ -7,21 +7,22 @@ import org.springframework.web.bind.annotation.*;
 
 import com.linkty.dto.request.EmailVerificationRequest;
 import com.linkty.dto.response.MessageResponse;
-import com.linkty.services.EmailVerificationService;
+import com.linkty.services.EmailService;
 
 @RestController
 @RequiredArgsConstructor
-public class EmailVerificationController {
+@RequestMapping("/email")
+public class EmailController {
 
-    private final EmailVerificationService emailVerificationService;
+    private final EmailService emailService;
 
-    // Send email with verification code.
-    @PostMapping("/verify-email")
-    public ResponseEntity<MessageResponse> verify(
+    // Send verification email.
+    @PostMapping("/verification")
+    public ResponseEntity<MessageResponse> verification(
             @RequestBody @Valid EmailVerificationRequest request) {
         String email = request.getEmail();
 
-        MessageResponse response = emailVerificationService.verifyEmail(email);
+        MessageResponse response = emailService.verifyEmail(email);
         return ResponseEntity.ok(response);
     }
 }
