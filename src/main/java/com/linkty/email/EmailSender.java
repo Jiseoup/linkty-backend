@@ -10,6 +10,7 @@ import jakarta.mail.internet.MimeMessage;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.springframework.stereotype.Component;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ public class EmailSender {
     private final TemplateEngine templateEngine;
 
     // Sends a verification email.
+    @Async
     public void sendVerificationEmail(String receiver, String code,
             long expire) {
         // Set subject and template.
@@ -42,7 +44,7 @@ public class EmailSender {
     }
 
     // Sends an email with the given subject, template, and variables.
-    public void sendEmail(String receiver, String subject, String template,
+    private void sendEmail(String receiver, String subject, String template,
             Map<String, String> variables) {
         try {
             // Creates a MimeMessage.
