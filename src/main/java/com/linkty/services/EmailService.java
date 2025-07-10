@@ -42,11 +42,11 @@ public class EmailService {
     public MessageResponse confirmVerificationCode(String receiver,
             String code) {
         // Retrieve the email verification stored in Redis by email.
-        EmailVerification emailVerification =
-                emailVerificationRepository.findById(receiver)
-                        .orElseThrow(() -> new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Email verification not found."));
+        EmailVerification emailVerification = emailVerificationRepository
+                .findById(receiver)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "The verification code has expired or not found."));
 
         // Check if the verification code is correct.
         if (!emailVerification.getCode().equals(code)) {

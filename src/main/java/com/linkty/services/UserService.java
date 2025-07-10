@@ -119,11 +119,10 @@ public class UserService {
         String email = jwtProvider.getEmailFromToken(refreshToken);
 
         // Retrieve the refresh token stored in Redis by email.
-        RefreshToken redisRefreshToken =
-                refreshTokenRepository.findById(email)
-                        .orElseThrow(() -> new ResponseStatusException(
-                                HttpStatus.UNAUTHORIZED,
-                                "Invalid refresh token"));
+        RefreshToken redisRefreshToken = refreshTokenRepository.findById(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED,
+                        "The refresh token has expired or is invalid."));
 
         // Validate refresh token.
         if (!redisRefreshToken.getToken().equals(refreshToken)) {
