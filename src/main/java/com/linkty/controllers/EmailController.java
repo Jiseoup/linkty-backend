@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import com.linkty.dto.request.EmailVerificationRequest;
 import com.linkty.dto.request.EmailVerificationConfirmRequest;
 import com.linkty.dto.response.MessageResponse;
