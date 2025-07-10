@@ -44,7 +44,8 @@ public class SecurityConfig {
                 // Configure authorization rules for incoming HTTP requests.
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/{shortenUrl}", "/shorten-url",
-                                "/email/verification", "/user/register",
+                                "/email/verification",
+                                "/email/verification/confirm", "/user/register",
                                 "/user/login")
                         .permitAll().anyRequest().authenticated())
 

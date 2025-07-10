@@ -46,7 +46,6 @@ public class UrlService {
         // Check if the url has activated.
         ZonedDateTime activeDate = url.getActiveDate();
         if (activeDate != null && activeDate.isAfter(ZonedDateTime.now())) {
-            // TODO: 추후 예외 처리 페이지로 이동하도록 처리 필요.
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "This URL has not activated yet.");
         }
@@ -54,7 +53,6 @@ public class UrlService {
         // Check if the url has expired.
         ZonedDateTime expireDate = url.getExpireDate();
         if (expireDate != null && expireDate.isBefore(ZonedDateTime.now())) {
-            // TODO: 추후 예외 처리 페이지로 이동하도록 처리 필요.
             throw new ResponseStatusException(HttpStatus.GONE,
                     "This URL has expired.");
         }
