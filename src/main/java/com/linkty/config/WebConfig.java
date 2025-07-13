@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
 
                 // Allow requests from specified origins. (TEMPORARY)
-                .allowedOrigins("http://localhost:3000", "https://linkty.kr")
+                .allowedOrigins("http://localhost:3000", "https://linkty.kr", "https://api.linkty.kr")
 
                 // Allow all HTTP methods.
                 .allowedMethods("*")
