@@ -10,6 +10,7 @@ import com.linkty.exception.CustomException;
 import com.linkty.exception.ErrorCode;
 import com.linkty.entities.redis.EmailVerification;
 import com.linkty.dto.response.MessageResponse;
+import com.linkty.repositories.UserRepository;
 import com.linkty.repositories.EmailVerificationRepository;
 
 @Service
@@ -20,10 +21,16 @@ public class EmailService {
     private long timeToLive;
 
     private final EmailSender emailSender;
+    private final UserRepository userRepository;
     private final EmailVerificationRepository emailVerificationRepository;
 
     // Sends a verification email to the receiver.
     public MessageResponse sendVerificationEmail(String receiver) {
+        // Check if the requested email already exists.
+        if (userRepository.existsByEmail(receiver)) {
+            throw new CustomException(ErrorCode.EMAIL_CONFLICTED);
+        }
+
         // Creates an 6-digits verification code.
         String code = CodeGenerator.generateNumeric(6);
 
