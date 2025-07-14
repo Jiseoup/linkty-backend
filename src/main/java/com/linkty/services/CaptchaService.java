@@ -2,8 +2,6 @@ package com.linkty.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -11,6 +9,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.LinkedMultiValueMap;
 
+import com.linkty.exception.CustomException;
+import com.linkty.exception.ErrorCode;
 import com.linkty.dto.response.CaptchaResponse;
 
 @Service
@@ -45,8 +45,7 @@ public class CaptchaService {
 
         // Check if the captcha verification is successful.
         if (response == null || !response.isSuccess()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "reCAPTCHA verification failed.");
+            throw new CustomException(ErrorCode.CAPTCHA_VERIFICATION_FAILED);
         }
     }
 }

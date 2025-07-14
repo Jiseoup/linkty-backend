@@ -9,10 +9,11 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
+import com.linkty.exception.CustomException;
+import com.linkty.exception.ErrorCode;
 
 @Component
 public class JwtProvider {
@@ -83,11 +84,9 @@ public class JwtProvider {
             return Jwts.parserBuilder().setSigningKey(key).build()
                     .parseClaimsJws(token).getBody().getSubject();
         } catch (ExpiredJwtException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "JWT token has expired.");
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
         } catch (JwtException | IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "Invalid JWT token.");
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
     }
 }

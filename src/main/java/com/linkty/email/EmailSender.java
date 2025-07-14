@@ -13,8 +13,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+
+import com.linkty.exception.CustomException;
+import com.linkty.exception.ErrorCode;
 
 @Component
 @RequiredArgsConstructor
@@ -68,8 +69,7 @@ public class EmailSender {
             // Send email.
             mailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Failed to send email.");
+            throw new CustomException(ErrorCode.SEND_EMAIL_FAILED);
         }
     }
 }

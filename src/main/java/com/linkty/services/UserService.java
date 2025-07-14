@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.linkty.jwt.JwtProvider;
+import com.linkty.exception.CustomException;
+import com.linkty.exception.ErrorCode;
 import com.linkty.entities.postgresql.User;
 import com.linkty.entities.redis.RefreshToken;
 import com.linkty.dto.response.MessageResponse;
@@ -35,8 +35,7 @@ public class UserService {
     public RegisterResponse createAccount(String email, String password) {
         // Check if the requested email already exists.
         if (userRepository.existsByEmail(email)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "This email is already in use.");
+            throw new CustomException(ErrorCode.EMAIL_CONFLICTED);
         }
 
         // Build and save the User entity.
@@ -53,13 +52,11 @@ public class UserService {
         // Retrieve the User entity by email.
         User user =
                 userRepository.findByEmailAndDeletedFalse(email).orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                "User email not found."));
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // Validate user password.
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "Incorrect password.");
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
         // Delete user.
@@ -71,16 +68,13 @@ public class UserService {
     // Handles user login process.
     public LoginResponse userLogin(String email, String password) {
         // Retrieve the User entity by email.
-        User user =
-                userRepository.findByEmailAndDeletedFalse(email)
-                        .orElseThrow(() -> new ResponseStatusException(
-                                HttpStatus.UNAUTHORIZED,
-                                "Invalid email or password."));
+        User user = userRepository.findByEmailAndDeletedFalse(email)
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.INVALID_EMAIL_OR_PASSWORD));
 
         // Validate user password.
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "Invalid email or password.");
+            throw new CustomException(ErrorCode.INVALID_EMAIL_OR_PASSWORD);
         }
 
         // Generate JWT tokens.
@@ -100,8 +94,7 @@ public class UserService {
         // Extract and validate the token from the authorization header.
         String token = jwtProvider.resolveToken(authorizationHeader);
         if (token == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Token is invalid or missing.");
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
 
         // Get email from the provided token.
@@ -119,15 +112,13 @@ public class UserService {
         String email = jwtProvider.getEmailFromToken(refreshToken);
 
         // Retrieve the refresh token stored in Redis by email.
-        RefreshToken redisRefreshToken = refreshTokenRepository.findById(email)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED,
-                        "The refresh token has expired or is invalid."));
+        RefreshToken redisRefreshToken =
+                refreshTokenRepository.findById(email).orElseThrow(
+                        () -> new CustomException(ErrorCode.INVALID_TOKEN));
 
         // Validate refresh token.
         if (!redisRefreshToken.getToken().equals(refreshToken)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "Token mismatch.");
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
 
         // Generate new access token.

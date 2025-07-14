@@ -5,10 +5,10 @@ import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.linkty.utils.CodeGenerator;
+import com.linkty.exception.CustomException;
+import com.linkty.exception.ErrorCode;
 import com.linkty.entities.postgresql.Url;
 import com.linkty.dto.response.UrlResponse;
 import com.linkty.repositories.UrlRepository;
@@ -40,21 +40,18 @@ public class UrlService {
     public String retrieveOriginalUrl(String shortenUrl) {
         // Retrieve the Url entity by shorten url.
         Url url = urlRepository.findByShortenUrl(shortenUrl).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "This URL does not exist."));
+                () -> new CustomException(ErrorCode.URL_NOT_FOUND));
 
         // Check if the url has activated.
         ZonedDateTime activeDate = url.getActiveDate();
         if (activeDate != null && activeDate.isAfter(ZonedDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "This URL has not activated yet.");
+            throw new CustomException(ErrorCode.URL_NOT_ACTIVATED);
         }
 
         // Check if the url has expired.
         ZonedDateTime expireDate = url.getExpireDate();
         if (expireDate != null && expireDate.isBefore(ZonedDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.GONE,
-                    "This URL has expired.");
+            throw new CustomException(ErrorCode.URL_EXPIRED);
         }
 
         // Increase the click count.
