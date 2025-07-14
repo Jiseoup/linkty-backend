@@ -4,15 +4,17 @@ import lombok.Getter;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+import com.linkty.exception.ValidationErrorCode;
+
 @Getter
 public class RegisterRequest {
-    @Email(message = "Must be valid email format.")
-    @NotBlank(message = "Email is required.")
+    @Email(message = ValidationErrorCode.INVALID_FORMAT)
+    @NotBlank(message = ValidationErrorCode.REQUIRED)
     private String email;
 
-    @NotBlank(message = "Password is required.")
+    @NotBlank(message = ValidationErrorCode.REQUIRED)
     private String password;
 
-    @NotBlank(message = "Captcha token is required.")
+    @NotBlank(message = ValidationErrorCode.REQUIRED)
     private String captchaToken;
 }

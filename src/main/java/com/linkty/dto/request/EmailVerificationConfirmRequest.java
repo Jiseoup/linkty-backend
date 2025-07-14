@@ -5,13 +5,15 @@ import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+import com.linkty.exception.ValidationErrorCode;
+
 @Getter
 public class EmailVerificationConfirmRequest {
-    @Email(message = "Must be valid email format.")
-    @NotBlank(message = "Email is required.")
+    @Email(message = ValidationErrorCode.INVALID_FORMAT)
+    @NotBlank(message = ValidationErrorCode.REQUIRED)
     private String email;
 
-    @Size(min = 6, max = 6)
-    @NotBlank(message = "Code is required.")
+    @Size(message = ValidationErrorCode.INVALID_LENGTH, min = 6, max = 6)
+    @NotBlank(message = ValidationErrorCode.REQUIRED)
     private String code;
 }
