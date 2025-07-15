@@ -10,7 +10,6 @@ import com.linkty.exception.ValidationErrorCode;
 
 @Getter
 public class UrlRequest {
-    @Size(message = ValidationErrorCode.LENGTH_UNDERFLOW, min = 2)
     @Size(message = ValidationErrorCode.LENGTH_OVERFLOW, max = 20)
     private String alias;
 
