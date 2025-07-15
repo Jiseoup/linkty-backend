@@ -30,8 +30,14 @@ public class UrlService {
         // Creates an 6-character shorten url.
         String shortenUrl = CodeGenerator.generateAlphanumeric(6);
 
+        // Remove whitespaces from the alias.
+        String cleanAlias = alias != null ? alias.strip() : null;
+        if (cleanAlias != null && cleanAlias.isEmpty()) {
+            cleanAlias = null;
+        }
+
         // Build and save the Url entity.
-        Url url = Url.builder().alias(alias).originalUrl(originalUrl)
+        Url url = Url.builder().alias(cleanAlias).originalUrl(originalUrl)
                 .shortenUrl(shortenUrl).activeDate(activeDate)
                 .expireDate(expireDate).build();
         urlRepository.save(url);

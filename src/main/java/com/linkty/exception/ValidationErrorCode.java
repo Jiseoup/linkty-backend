@@ -6,4 +6,5 @@ public interface ValidationErrorCode {
     String INVALID_FORMAT = "INVALID_FORMAT";
     String INVALID_LENGTH = "INVALID_LENGTH";
     String LENGTH_OVERFLOW = "LENGTH_OVERFLOW";
+    String LENGTH_UNDERFLOW = "LENGTH_UNDERFLOW";
 }
