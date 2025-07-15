@@ -1,6 +1,7 @@
 package com.linkty.dto.request;
 
 import lombok.Getter;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -12,6 +13,8 @@ public class RegisterRequest {
     @NotBlank(message = ValidationErrorCode.REQUIRED)
     private String email;
 
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()]{8,16}$",
+            message = ValidationErrorCode.INVALID_FORMAT)
     @NotBlank(message = ValidationErrorCode.REQUIRED)
     private String password;
 

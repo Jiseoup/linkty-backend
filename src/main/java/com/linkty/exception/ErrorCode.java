@@ -14,15 +14,17 @@ public enum ErrorCode {
 
     // Common Error Codes.
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Token is invalid or has been expired."),
+    EMAIL_CONFLICTED(HttpStatus.CONFLICT, "This email is already in use."),
 
     // Url Service Error Codes.
     URL_NOT_FOUND(HttpStatus.NOT_FOUND, "This URL does not exist."),
+    INVALID_URL_SCHEME(HttpStatus.BAD_REQUEST, "URL must start with http:// or https://."),
+    INVALID_URL_FORMAT(HttpStatus.BAD_REQUEST, "Invalid URL format."),
     URL_NOT_ACTIVATED(HttpStatus.FORBIDDEN, "This URL has not activated yet."),
     URL_EXPIRED(HttpStatus.GONE, "This URL has expired."),
 
     // User Service Error Codes.
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "This User does not exist."),
-    EMAIL_CONFLICTED(HttpStatus.CONFLICT, "This email is already in use."),
     INVALID_EMAIL_OR_PASSWORD(HttpStatus.UNAUTHORIZED, "Invalid email or password."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "Invalid password."),
 

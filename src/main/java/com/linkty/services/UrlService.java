@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import com.linkty.utils.UrlValidator;
 import com.linkty.utils.CodeGenerator;
 import com.linkty.exception.CustomException;
 import com.linkty.exception.ErrorCode;
@@ -23,6 +24,9 @@ public class UrlService {
     @Transactional
     public UrlResponse createShortenUrl(String alias, String originalUrl,
             ZonedDateTime activeDate, ZonedDateTime expireDate) {
+        // Validate the original url.
+        UrlValidator.validate(originalUrl);
+
         // Creates an 6-character shorten url.
         String shortenUrl = CodeGenerator.generateAlphanumeric(6);
 
