@@ -14,7 +14,7 @@ CREATE TABLE urls (
     user_id BIGINT,
     alias VARCHAR(20),
     original_url TEXT NOT NULL,
-    shorten_url CHAR(8) NOT NULL UNIQUE,
+    shorten_url CHAR(6) NOT NULL UNIQUE,
     active_date TIMESTAMP WITH TIME ZONE,
     expire_date TIMESTAMP WITH TIME ZONE,
     click_count INTEGER NOT NULL DEFAULT 0,

@@ -34,7 +34,7 @@ public class Url {
     private String originalUrl;
 
     @Column(name = "shorten_url", nullable = false,
-            columnDefinition = "CHAR(8)", length = 8, unique = true)
+            columnDefinition = "CHAR(6)", length = 6, unique = true)
     private String shortenUrl;
 
     @Column(name = "active_date", nullable = true)
