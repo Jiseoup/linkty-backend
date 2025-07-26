@@ -91,7 +91,7 @@ public class UserService {
         // Set HttpOnly refresh token cookie.
         Cookie cookie = new Cookie("refreshToken", refreshToken);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        // cookie.setSecure(true);  // TEMP: Does not set secure for development.
         cookie.setPath("/");
         cookie.setMaxAge((int) timeToLive);
         response.addCookie(cookie);
@@ -117,7 +117,7 @@ public class UserService {
         // Remove HttpOnly refresh token cookie.
         Cookie cookie = new Cookie("refreshToken", null);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        // cookie.setSecure(true);  // TEMP: Does not set secure for development.
         cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
