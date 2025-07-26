@@ -88,13 +88,19 @@ public class UserService {
                 .token(refreshToken).expire(timeToLive).build();
         refreshTokenRepository.save(redisRefreshToken);
 
-        // Set HttpOnly refresh token cookie.
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-        // cookie.setSecure(true);  // TEMP: Does not set secure for development.
-        cookie.setPath("/");
-        cookie.setMaxAge((int) timeToLive);
-        response.addCookie(cookie);
+        // // Set HttpOnly refresh token cookie.
+        // Cookie cookie = new Cookie("refreshToken", refreshToken);
+        // cookie.setHttpOnly(true);
+        // cookie.setSecure(true);
+        // cookie.setPath("/");
+        // cookie.setMaxAge((int) timeToLive);
+        // response.addCookie(cookie);
+
+        // Temp function: Set refresh token cookie for development.
+        String cookie = String.format(
+                "refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=None",
+                refreshToken, (int) timeToLive);
+        response.setHeader("Set-Cookie", cookie);
 
         return new TokenResponse(accessToken);
     }
@@ -114,13 +120,18 @@ public class UserService {
         // Delete refresh token from Redis.
         refreshTokenRepository.deleteById(email);
 
-        // Remove HttpOnly refresh token cookie.
-        Cookie cookie = new Cookie("refreshToken", null);
-        cookie.setHttpOnly(true);
-        // cookie.setSecure(true);  // TEMP: Does not set secure for development.
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
+        // // Remove HttpOnly refresh token cookie.
+        // Cookie cookie = new Cookie("refreshToken", null);
+        // cookie.setHttpOnly(true);
+        // cookie.setSecure(true);
+        // cookie.setPath("/");
+        // cookie.setMaxAge(0);
+        // response.addCookie(cookie);
+
+        // Temp function: Remove refresh token cookie for development.
+        String cookie =
+                "refreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=None";
+        response.setHeader("Set-Cookie", cookie);
 
         return new MessageResponse("User logged out successfully.");
     }
