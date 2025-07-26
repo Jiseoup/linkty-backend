@@ -46,7 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/{shortenUrl}", "/shorten-url",
                                 "/email/verification",
                                 "/email/verification/confirm", "/user/register",
-                                "/user/login")
+                                "/user/login", "/user/refresh-token")
                         .permitAll().anyRequest().authenticated())
 
                 // Add JWT authentication filter before UsernamePasswordAuthenticationFilter.

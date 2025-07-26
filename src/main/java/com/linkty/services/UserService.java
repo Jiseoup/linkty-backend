@@ -14,7 +14,7 @@ import com.linkty.entities.redis.RefreshToken;
 import com.linkty.dto.response.MessageResponse;
 import com.linkty.dto.response.LoginResponse;
 import com.linkty.dto.response.RegisterResponse;
-import com.linkty.dto.response.RefreshTokenResponse;
+import com.linkty.dto.response.TokenResponse;
 import com.linkty.repositories.UserRepository;
 import com.linkty.repositories.RefreshTokenRepository;
 
@@ -107,7 +107,7 @@ public class UserService {
     }
 
     // Refresh access token using a valid refresh token.
-    public RefreshTokenResponse refreshToken(String refreshToken) {
+    public TokenResponse refreshToken(String refreshToken) {
         // Get email from the refresh token.
         String email = jwtProvider.getEmailFromToken(refreshToken);
 
@@ -124,6 +124,6 @@ public class UserService {
         // Generate new access token.
         String accessToken = jwtProvider.generateAccessToken(email);
 
-        return new RefreshTokenResponse(accessToken);
+        return new TokenResponse(accessToken);
     }
 }
