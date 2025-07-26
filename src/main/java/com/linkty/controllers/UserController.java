@@ -64,9 +64,11 @@ public class UserController {
     // User logout.
     @PostMapping("/logout")
     public ResponseEntity<MessageResponse> logout(
-            @RequestHeader("Authorization") String authorizationHeader) {
-        MessageResponse response = userService.userLogout(authorizationHeader);
-        return ResponseEntity.ok(response);
+            @RequestHeader("Authorization") String authorizationHeader,
+            HttpServletResponse response) {
+        MessageResponse messageResponse =
+                userService.userLogout(authorizationHeader, response);
+        return ResponseEntity.ok(messageResponse);
     }
 
     // Reissue access token.

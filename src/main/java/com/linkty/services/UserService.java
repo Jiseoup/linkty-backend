@@ -100,7 +100,8 @@ public class UserService {
     }
 
     // Handles user logout process.
-    public MessageResponse userLogout(String authorizationHeader) {
+    public MessageResponse userLogout(String authorizationHeader,
+            HttpServletResponse response) {
         // Extract and validate the token from the authorization header.
         String token = jwtProvider.resolveToken(authorizationHeader);
         if (token == null) {
@@ -112,6 +113,14 @@ public class UserService {
 
         // Delete refresh token from Redis.
         refreshTokenRepository.deleteById(email);
+
+        // Remove HttpOnly refresh token cookie.
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
 
         return new MessageResponse("User logged out successfully.");
     }
