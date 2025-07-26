@@ -2,6 +2,8 @@ package com.linkty.services;
 
 import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,7 +14,6 @@ import com.linkty.exception.ErrorCode;
 import com.linkty.entities.postgresql.User;
 import com.linkty.entities.redis.RefreshToken;
 import com.linkty.dto.response.MessageResponse;
-import com.linkty.dto.response.LoginResponse;
 import com.linkty.dto.response.RegisterResponse;
 import com.linkty.dto.response.TokenResponse;
 import com.linkty.repositories.UserRepository;
@@ -66,7 +67,8 @@ public class UserService {
     }
 
     // Handles user login process.
-    public LoginResponse userLogin(String email, String password) {
+    public TokenResponse userLogin(String email, String password,
+            HttpServletResponse response) {
         // Retrieve the User entity by email.
         User user = userRepository.findByEmailAndDeletedFalse(email)
                 .orElseThrow(() -> new CustomException(
@@ -86,7 +88,15 @@ public class UserService {
                 .token(refreshToken).expire(timeToLive).build();
         refreshTokenRepository.save(redisRefreshToken);
 
-        return new LoginResponse(accessToken, refreshToken);
+        // Set HttpOnly refresh token cookie.
+        Cookie cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge((int) timeToLive);
+        response.addCookie(cookie);
+
+        return new TokenResponse(accessToken);
     }
 
     // Handles user logout process.

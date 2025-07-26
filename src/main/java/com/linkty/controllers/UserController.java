@@ -1,17 +1,14 @@
 package com.linkty.controllers;
 
 import jakarta.validation.Valid;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.linkty.dto.request.UserRequest;
 import com.linkty.dto.request.RegisterRequest;
 import com.linkty.dto.response.MessageResponse;
-import com.linkty.dto.response.LoginResponse;
 import com.linkty.dto.response.RegisterResponse;
 import com.linkty.dto.response.TokenResponse;
 import com.linkty.services.UserService;
@@ -21,9 +18,6 @@ import com.linkty.services.CaptchaService;
 @RequiredArgsConstructor
 @RequestMapping("/user")
 public class UserController {
-
-    @Value("${redis.refresh-token-ttl}")
-    private long timeToLive;
 
     private final UserService userService;
     private final CaptchaService captchaService;
@@ -62,20 +56,8 @@ public class UserController {
         String email = request.getEmail();
         String password = request.getPassword();
 
-        // Authenticate user and get access token and refresh token.
-        LoginResponse loginResponse = userService.userLogin(email, password);
-        String accessToken = loginResponse.getAccessToken();
-        String refreshToken = loginResponse.getRefreshToken();
-
-        // Create HttpOnly refresh token cookie.
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge((int) timeToLive);
-        response.addCookie(cookie);
-
-        TokenResponse tokenResponse = new TokenResponse(accessToken);
+        TokenResponse tokenResponse =
+                userService.userLogin(email, password, response);
         return ResponseEntity.ok(tokenResponse);
     }
 
