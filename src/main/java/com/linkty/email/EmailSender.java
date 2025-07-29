@@ -33,7 +33,7 @@ public class EmailSender {
             long expire) {
         // Set subject and template.
         // String subject = "[Linkty] 회원가입 이메일 인증번호 안내";
-        String subject = "[Linkty] 깃허브 액션 테스트 적용하라";
+        String subject = "[Linkty] 깃허브 액션 테스트";
         String template = "email/verification";
 
         // Set variables for the email template.
