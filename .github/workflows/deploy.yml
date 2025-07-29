@@ -26,4 +26,4 @@ jobs:
 
       - name: Restart the service
         run: |
-          sudo systemctl restart linkty
+          sudo systemctl restart linkty.service
