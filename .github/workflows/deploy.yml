@@ -22,7 +22,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build project without tests
-        run: ./gradlew build -x test
+        run: ./gradlew clean build -x test
 
       - name: Restart the service
         run: |
