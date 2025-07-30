@@ -22,6 +22,7 @@ public enum ErrorCode {
     INVALID_URL_FORMAT(HttpStatus.BAD_REQUEST, "Invalid URL format."),
     URL_NOT_ACTIVATED(HttpStatus.FORBIDDEN, "This URL has not activated yet."),
     URL_EXPIRED(HttpStatus.GONE, "This URL has expired."),
+    ADVANCED_SETTINGS_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Advanced settings are for members only."),
 
     // User Service Error Codes.
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "This User does not exist."),

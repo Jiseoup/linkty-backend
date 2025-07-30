@@ -11,24 +11,37 @@ import com.linkty.utils.CodeGenerator;
 import com.linkty.exception.CustomException;
 import com.linkty.exception.ErrorCode;
 import com.linkty.entities.postgresql.Url;
+import com.linkty.entities.postgresql.User;
 import com.linkty.dto.response.UrlResponse;
 import com.linkty.repositories.UrlRepository;
+import com.linkty.repositories.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 public class UrlService {
 
     private final UrlRepository urlRepository;
+    private final UserRepository userRepository;
 
     // Creates a new shorten url based on the original url.
     @Transactional
     public UrlResponse createShortenUrl(String alias, String originalUrl,
-            ZonedDateTime activeDate, ZonedDateTime expireDate) {
+            ZonedDateTime activeDate, ZonedDateTime expireDate, Long userId) {
         // Validate the original url.
         UrlValidator.validate(originalUrl);
 
-        // Creates an 6-character shorten url.
-        String shortenUrl = CodeGenerator.generateAlphanumeric(6);
+        // Check if unauthorized user tries to use advanced settings.
+        if ((alias != null || activeDate != null || expireDate != null)
+                && userId == null) {
+            throw new CustomException(ErrorCode.ADVANCED_SETTINGS_UNAUTHORIZED);
+        }
+
+        // Get User entity if userId request exists.
+        User user = null;
+        if (userId != null) {
+            user = userRepository.findById(userId).orElseThrow(
+                    () -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        }
 
         // Remove whitespaces from the alias.
         String cleanAlias = alias != null ? alias.strip() : null;
@@ -36,13 +49,16 @@ public class UrlService {
             cleanAlias = null;
         }
 
+        // Creates an 6-character shorten url.
+        String shortenUrl = CodeGenerator.generateAlphanumeric(6);
+
         // Build and save the Url entity.
         Url url = Url.builder().alias(cleanAlias).originalUrl(originalUrl)
                 .shortenUrl(shortenUrl).activeDate(activeDate)
-                .expireDate(expireDate).build();
+                .expireDate(expireDate).user(user).build();
         urlRepository.save(url);
 
-        return new UrlResponse(shortenUrl, activeDate, expireDate);
+        return new UrlResponse(shortenUrl, cleanAlias, activeDate, expireDate);
     }
 
     // Retrieves the original url associated with a given shorten url.

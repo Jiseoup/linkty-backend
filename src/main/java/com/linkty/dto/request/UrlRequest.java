@@ -19,4 +19,6 @@ public class UrlRequest {
     private ZonedDateTime activeDate;
 
     private ZonedDateTime expireDate;
+
+    private Long userId;
 }

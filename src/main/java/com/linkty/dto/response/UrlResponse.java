@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class UrlResponse {
     private String shortenUrl;
+    private String alias;
     private ZonedDateTime activeDate;
     private ZonedDateTime expireDate;
 }

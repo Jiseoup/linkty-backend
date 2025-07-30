@@ -25,9 +25,10 @@ public class UrlController {
         String originalUrl = request.getOriginalUrl();
         ZonedDateTime activeDate = request.getActiveDate();
         ZonedDateTime expireDate = request.getExpireDate();
+        Long userId = request.getUserId();
 
         UrlResponse response = urlService.createShortenUrl(alias, originalUrl,
-                activeDate, expireDate);
+                activeDate, expireDate, userId);
         return ResponseEntity.ok(response);
     }
 
