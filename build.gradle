@@ -5,7 +5,11 @@ plugins {
 }
 
 group = 'com.linkty'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
+
+jar {
+	archiveFileName = 'linkty.jar'
+}
 
 java {
 	toolchain {

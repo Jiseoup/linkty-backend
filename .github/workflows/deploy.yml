@@ -6,14 +6,11 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: [self-hosted, actions-runner-backend]
+    runs-on: [self-hosted, linkty-backend]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Test - Print working dir
-        run: pwd
 
       - name: Set up JDK
         uses: actions/setup-java@v3
