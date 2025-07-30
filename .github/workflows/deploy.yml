@@ -12,11 +12,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Test - Print working dir
+        run: pwd
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: "temurin"
           java-version: "21"
+          distribution: "temurin"
 
       - name: Grant permission to gradlew
         run: chmod +x ./gradlew
@@ -24,18 +27,6 @@ jobs:
       - name: Build project without tests
         run: ./gradlew clean build -x test
 
-      - name: Test - List built JARs
-        run: ls -al build/libs
-
-      - name: Test - Whoami
-        run: whoami
-
       - name: Restart the service
         run: |
           sudo systemctl restart linkty.service
-
-      - name: Test - Check service status
-        run: sudo systemctl status linkty.service --no-pager
-
-      - name: Test - Check service logs
-        run: sudo journalctl -u linkty.service -n 50 --no-pager
