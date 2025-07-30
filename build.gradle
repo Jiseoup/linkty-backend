@@ -8,6 +8,10 @@ group = 'com.linkty'
 version = '0.0.1'
 
 jar {
+	archiveFileName = 'linkty-plain.jar'
+}
+
+bootJar {
 	archiveFileName = 'linkty.jar'
 }
 
