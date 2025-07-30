@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import com.linkty.dto.request.UserRequest;
 import com.linkty.dto.request.RegisterRequest;
 import com.linkty.dto.response.MessageResponse;
-import com.linkty.dto.response.RegisterResponse;
 import com.linkty.dto.response.TokenResponse;
 import com.linkty.services.UserService;
 import com.linkty.services.CaptchaService;
@@ -24,7 +23,7 @@ public class UserController {
 
     // User registration.
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(
+    public ResponseEntity<MessageResponse> register(
             @RequestBody @Valid RegisterRequest request) {
         String email = request.getEmail();
         String password = request.getPassword();
@@ -33,7 +32,7 @@ public class UserController {
         // Verify the captcha token.
         captchaService.verifyToken(captchaToken);
 
-        RegisterResponse response = userService.createAccount(email, password);
+        MessageResponse response = userService.createAccount(email, password);
         return ResponseEntity.ok(response);
     }
 

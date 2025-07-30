@@ -10,7 +10,7 @@ import lombok.AccessLevel;
 import jakarta.persistence.*;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Entity

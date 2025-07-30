@@ -27,7 +27,7 @@ public class EmailService {
     // Sends a verification email to the receiver.
     public MessageResponse sendVerificationEmail(String receiver) {
         // Check if the requested email already exists.
-        if (userRepository.existsByEmail(receiver)) {
+        if (userRepository.existsByEmailAndDeletedFalse(receiver)) {
             throw new CustomException(ErrorCode.EMAIL_CONFLICTED);
         }
 

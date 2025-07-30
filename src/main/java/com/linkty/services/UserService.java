@@ -1,5 +1,7 @@
 package com.linkty.services;
 
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
 // import jakarta.servlet.http.Cookie;
@@ -14,7 +16,6 @@ import com.linkty.exception.ErrorCode;
 import com.linkty.entities.postgresql.User;
 import com.linkty.entities.redis.RefreshToken;
 import com.linkty.dto.response.MessageResponse;
-import com.linkty.dto.response.RegisterResponse;
 import com.linkty.dto.response.TokenResponse;
 import com.linkty.repositories.UserRepository;
 import com.linkty.repositories.RefreshTokenRepository;
@@ -31,23 +32,40 @@ public class UserService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    // Creates a new user account.
+    // Creates an user account.
     @Transactional
-    public RegisterResponse createAccount(String email, String password) {
-        // Check if the requested email already exists.
-        if (userRepository.existsByEmail(email)) {
+    public MessageResponse createAccount(String email, String password) {
+        // Retrieve a not deleted user with the given email.
+        Optional<User> activeUser =
+                userRepository.findByEmailAndDeletedFalse(email);
+
+        // If not deleted user exists, throws an exception.
+        if (activeUser.isPresent()) {
             throw new CustomException(ErrorCode.EMAIL_CONFLICTED);
         }
 
-        // Build and save the User entity.
-        User user = User.builder().email(email)
-                .password(passwordEncoder.encode(password)).build();
+        // Retrieve a deleted user with the given email.
+        Optional<User> inactiveUser = userRepository.findByEmail(email);
+
+        User user;
+        // If deleted user exists, restore an user.
+        if (inactiveUser.isPresent()) {
+            User userToRestore = inactiveUser.get();
+            user = userToRestore.toBuilder().deleted(false)
+                    .password(passwordEncoder.encode(password)).build();
+        }
+        // If deleted user not exists, create a new user.
+        else {
+            user = User.builder().email(email)
+                    .password(passwordEncoder.encode(password)).build();
+        }
+        // Save the User entity.
         userRepository.save(user);
 
-        return new RegisterResponse(user.getEmail(), user.getJoinDate());
+        return new MessageResponse("User account created successfully.");
     }
 
-    // Deletes a user account.
+    // Deletes an user account.
     @Transactional
     public MessageResponse deleteAccount(String email, String password) {
         // Retrieve the User entity by email.
