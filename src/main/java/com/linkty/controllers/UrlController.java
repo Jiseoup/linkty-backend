@@ -20,15 +20,16 @@ public class UrlController {
     // Creates a shorten url with the original url provided in the request.
     @PostMapping("/shorten-url")
     public ResponseEntity<UrlResponse> shorten(
-            @RequestBody @Valid UrlRequest request) {
+            @RequestBody @Valid UrlRequest request,
+            @RequestHeader(value = "Authorization",
+                    required = false) String authToken) {
         String alias = request.getAlias();
         String originalUrl = request.getOriginalUrl();
         ZonedDateTime activeDate = request.getActiveDate();
         ZonedDateTime expireDate = request.getExpireDate();
-        Long userId = request.getUserId();
 
         UrlResponse response = urlService.createShortenUrl(alias, originalUrl,
-                activeDate, expireDate, userId);
+                activeDate, expireDate, authToken);
         return ResponseEntity.ok(response);
     }
 

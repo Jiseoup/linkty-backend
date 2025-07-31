@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import com.linkty.jwt.JwtProvider;
 import com.linkty.utils.UrlValidator;
 import com.linkty.utils.CodeGenerator;
 import com.linkty.exception.CustomException;
@@ -20,26 +21,32 @@ import com.linkty.repositories.UserRepository;
 @RequiredArgsConstructor
 public class UrlService {
 
+    private final JwtProvider jwtProvider;
     private final UrlRepository urlRepository;
     private final UserRepository userRepository;
 
     // Creates a new shorten url based on the original url.
     @Transactional
     public UrlResponse createShortenUrl(String alias, String originalUrl,
-            ZonedDateTime activeDate, ZonedDateTime expireDate, Long userId) {
+            ZonedDateTime activeDate, ZonedDateTime expireDate,
+            String authToken) {
         // Validate the original url.
         UrlValidator.validate(originalUrl);
 
+        // Extract the token from the authorization header.
+        String token = jwtProvider.resolveToken(authToken);
+
         // Check if unauthorized user tries to use advanced settings.
         if ((alias != null || activeDate != null || expireDate != null)
-                && userId == null) {
+                && token == null) {
             throw new CustomException(ErrorCode.ADVANCED_SETTINGS_UNAUTHORIZED);
         }
 
-        // Get User entity if userId request exists.
+        // Retrieve the User entity if authToken exists.
         User user = null;
-        if (userId != null) {
-            user = userRepository.findById(userId).orElseThrow(
+        if (token != null) {
+            String email = jwtProvider.getEmailFromToken(token);
+            user = userRepository.findByEmailAndDeletedFalse(email).orElseThrow(
                     () -> new CustomException(ErrorCode.USER_NOT_FOUND));
         }
 

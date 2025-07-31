@@ -63,10 +63,10 @@ public class UserController {
     // User logout.
     @PostMapping("/logout")
     public ResponseEntity<MessageResponse> logout(
-            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestHeader("Authorization") String authToken,
             HttpServletResponse response) {
         MessageResponse messageResponse =
-                userService.userLogout(authorizationHeader, response);
+                userService.userLogout(authToken, response);
         return ResponseEntity.ok(messageResponse);
     }
 

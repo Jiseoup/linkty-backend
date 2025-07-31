@@ -124,10 +124,10 @@ public class UserService {
     }
 
     // Handles user logout process.
-    public MessageResponse userLogout(String authorizationHeader,
+    public MessageResponse userLogout(String authToken,
             HttpServletResponse response) {
         // Extract and validate the token from the authorization header.
-        String token = jwtProvider.resolveToken(authorizationHeader);
+        String token = jwtProvider.resolveToken(authToken);
         if (token == null) {
             throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
