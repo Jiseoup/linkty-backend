@@ -72,8 +72,8 @@ public class UserController {
 
     // Reissue access token.
     @PostMapping("/refresh-token")
-    public ResponseEntity<TokenResponse> refresh(@CookieValue(
-            name = "refreshToken", required = false) String refreshToken) {
+    public ResponseEntity<TokenResponse> refresh(
+            @CookieValue(required = false) String refreshToken) {
         TokenResponse response = userService.refreshToken(refreshToken);
         return ResponseEntity.ok(response);
     }
