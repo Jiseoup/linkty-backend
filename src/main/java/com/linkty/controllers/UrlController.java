@@ -34,7 +34,8 @@ public class UrlController {
     }
 
     // Redirects to the original url using the shorten url.
-    @GetMapping("/{shortenUrl}")
+    @GetMapping("/{shortenUrl:[a-zA-Z0-9]{6}}")
+    // @GetMapping("/{shortenUrl}")
     public ResponseEntity<Void> redirect(@PathVariable String shortenUrl) {
         String originalUrl = urlService.retrieveOriginalUrl(shortenUrl);
 
