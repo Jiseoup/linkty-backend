@@ -24,8 +24,13 @@ import com.linkty.repositories.RefreshTokenRepository;
 @RequiredArgsConstructor
 public class UserService {
 
+    // Redis TTL for refresh tokens when rememberMe is enabled.
     @Value("${redis.refresh-token-ttl}")
-    private long timeToLive;
+    private long redisTtl;
+
+    // Short Redis TTL for refresh tokens when rememberMe is disabled.
+    @Value("${redis.short-refresh-token-ttl}")
+    private long shortRedisTtl;
 
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
@@ -86,7 +91,7 @@ public class UserService {
 
     // Handles user login process.
     public TokenResponse userLogin(String email, String password,
-            HttpServletResponse response) {
+            Boolean rememberMe, HttpServletResponse response) {
         // Retrieve the User entity by email.
         User user = userRepository.findByEmailAndDeletedFalse(email)
                 .orElseThrow(() -> new CustomException(
@@ -99,12 +104,8 @@ public class UserService {
 
         // Generate JWT tokens.
         String accessToken = jwtProvider.generateAccessToken(email);
-        String refreshToken = jwtProvider.generateRefreshToken(email);
-
-        // Build and save the RefreshToken in Redis.
-        RefreshToken redisRefreshToken = RefreshToken.builder().email(email)
-                .token(refreshToken).expire(timeToLive).build();
-        refreshTokenRepository.save(redisRefreshToken);
+        String refreshToken =
+                jwtProvider.generateRefreshToken(email, rememberMe);
 
         // // Set HttpOnly refresh token cookie.
         // Cookie cookie = new Cookie("refreshToken", refreshToken);
@@ -115,9 +116,25 @@ public class UserService {
         // response.addCookie(cookie);
 
         // Temp function: Set refresh token cookie for development.
-        String cookie = String.format(
-                "refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=None",
-                refreshToken, (int) timeToLive);
+        String cookie;
+        long timeToLive;
+        if (Boolean.TRUE.equals(rememberMe)) {
+            timeToLive = redisTtl;
+            cookie = String.format(
+                    "refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=None",
+                    refreshToken, (int) timeToLive);
+        } else {
+            timeToLive = shortRedisTtl;
+            cookie = String.format(
+                    "refreshToken=%s; Path=/; HttpOnly; Secure; SameSite=None",
+                    refreshToken);
+        }
+
+        // Build and save the RefreshToken in Redis.
+        RefreshToken redisRefreshToken = RefreshToken.builder().email(email)
+                .token(refreshToken).expire(timeToLive).build();
+        refreshTokenRepository.save(redisRefreshToken);
+
         response.setHeader("Set-Cookie", cookie);
 
         return new TokenResponse(accessToken);

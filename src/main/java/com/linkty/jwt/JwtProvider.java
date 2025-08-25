@@ -21,15 +21,18 @@ public class JwtProvider {
     private final Key key;
     private final long accessTokenValidity;
     private final long refreshTokenValidity;
+    private final long shortRefreshTokenValidity;
 
     // Constructor that initializes the secret key and token validity durations.
     public JwtProvider(@Value("${jwt.secret-key}") String secretKey,
             @Value("${jwt.access-token-validity}") long accessTokenValidity,
-            @Value("${jwt.refresh-token-validity}") long refreshTokenValidity) {
+            @Value("${jwt.refresh-token-validity}") long refreshTokenValidity,
+            @Value("${jwt.short-refresh-token-validity}") long shortRefreshTokenValidity) {
         this.key =
                 Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         this.accessTokenValidity = accessTokenValidity;
         this.refreshTokenValidity = refreshTokenValidity;
+        this.shortRefreshTokenValidity = shortRefreshTokenValidity;
     }
 
     // Generate JWT access token.
@@ -38,8 +41,9 @@ public class JwtProvider {
     }
 
     // Generate JWT refresh token.
-    public String generateRefreshToken(String email) {
-        return generateToken(email, refreshTokenValidity);
+    public String generateRefreshToken(String email, Boolean rememberMe) {
+        return generateToken(email,
+                rememberMe ? refreshTokenValidity : shortRefreshTokenValidity);
     }
 
     // Common method to generate JWT tokens.

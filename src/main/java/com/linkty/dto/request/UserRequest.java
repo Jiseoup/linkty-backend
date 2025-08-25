@@ -14,4 +14,6 @@ public class UserRequest {
 
     @NotBlank(message = ValidationErrorCode.REQUIRED)
     private String password;
+
+    private Boolean rememberMe = false;
 }

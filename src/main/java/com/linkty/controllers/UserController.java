@@ -54,9 +54,10 @@ public class UserController {
             HttpServletResponse response) {
         String email = request.getEmail();
         String password = request.getPassword();
+        Boolean rememberMe = request.getRememberMe();
 
         TokenResponse tokenResponse =
-                userService.userLogin(email, password, response);
+                userService.userLogin(email, password, rememberMe, response);
         return ResponseEntity.ok(tokenResponse);
     }
 
