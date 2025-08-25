@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
+import com.linkty.email.EmailPurposeEnum;
 import com.linkty.exception.CustomException;
 import com.linkty.exception.ErrorCode;
 
@@ -29,11 +30,23 @@ public class EmailSender {
 
     // Sends a verification email.
     @Async
-    public void sendVerificationEmail(String receiver, String code,
-            long expire) {
-        // Set subject and template.
-        String subject = "[Linkty] 회원가입 이메일 인증번호 안내";
-        String template = "email/verification";
+    public void sendVerificationEmail(String receiver, String code, long expire,
+            EmailPurposeEnum purpose) {
+        String subject;
+        String template;
+
+        // Set subject and template based on email purpose.
+        switch (purpose) {
+            case EmailPurposeEnum.REGISTER -> {
+                subject = "[Linkty] 회원가입 이메일 인증번호 안내";
+                template = "email/register";
+            }
+            case EmailPurposeEnum.FIND_PASSWORD -> {
+                subject = "[Linkty] 비밀번호 찾기 인증번호 안내";
+                template = "email/find-password";
+            }
+            default -> throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
 
         // Set variables for the email template.
         Map<String, String> variables = new HashMap<>();

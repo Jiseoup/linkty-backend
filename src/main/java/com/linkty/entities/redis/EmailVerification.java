@@ -19,7 +19,7 @@ import org.springframework.data.redis.core.TimeToLive;
 public class EmailVerification implements Serializable {
 
     @Id
-    private String email;
+    private String id;
 
     private String code;
 

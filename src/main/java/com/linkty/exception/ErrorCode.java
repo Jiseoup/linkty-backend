@@ -13,7 +13,9 @@ public enum ErrorCode {
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "Unknown validation error has occurred."),
 
     // Common Error Codes.
+    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "Invalid request."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Token is invalid or has been expired."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "This User does not exist."),
     EMAIL_CONFLICTED(HttpStatus.CONFLICT, "This email is already in use."),
 
     // Url Service Error Codes.
@@ -25,7 +27,6 @@ public enum ErrorCode {
     ADVANCED_SETTINGS_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Advanced settings are for members only."),
 
     // User Service Error Codes.
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "This User does not exist."),
     INVALID_EMAIL_OR_PASSWORD(HttpStatus.UNAUTHORIZED, "Invalid email or password."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "Invalid password."),
 

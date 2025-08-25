@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.linkty.email.EmailPurposeEnum;
 import com.linkty.dto.request.EmailVerificationRequest;
 import com.linkty.dto.request.EmailVerificationConfirmRequest;
 import com.linkty.dto.response.MessageResponse;
@@ -22,8 +23,10 @@ public class EmailController {
     public ResponseEntity<MessageResponse> verification(
             @RequestBody @Valid EmailVerificationRequest request) {
         String email = request.getEmail();
+        EmailPurposeEnum purpose = request.getPurpose();
 
-        MessageResponse response = emailService.sendVerificationEmail(email);
+        MessageResponse response =
+                emailService.sendVerificationEmail(email, purpose);
         return ResponseEntity.ok(response);
     }
 
@@ -33,9 +36,10 @@ public class EmailController {
             @RequestBody @Valid EmailVerificationConfirmRequest request) {
         String email = request.getEmail();
         String code = request.getCode();
+        EmailPurposeEnum purpose = request.getPurpose();
 
         MessageResponse response =
-                emailService.confirmVerificationCode(email, code);
+                emailService.confirmVerificationCode(email, code, purpose);
         return ResponseEntity.ok(response);
     }
 }
