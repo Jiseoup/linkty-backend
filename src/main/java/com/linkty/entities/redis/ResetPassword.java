@@ -15,13 +15,13 @@ import org.springframework.data.redis.core.TimeToLive;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@RedisHash(value = "emailVerification")
-public class EmailVerification implements Serializable {
+@RedisHash(value = "resetPassword")
+public class ResetPassword implements Serializable {
 
     @Id
     private String email;
 
-    private String code;
+    private String hashToken;
 
     @TimeToLive
     private long expire;

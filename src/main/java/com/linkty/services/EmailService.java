@@ -5,75 +5,60 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.linkty.utils.CodeGenerator;
-import com.linkty.utils.KeyGenerator;
 import com.linkty.email.EmailSender;
-import com.linkty.email.EmailPurposeEnum;
+import com.linkty.email.EmailTemplate;
 import com.linkty.exception.CustomException;
 import com.linkty.exception.ErrorCode;
 import com.linkty.entities.redis.EmailVerification;
+import com.linkty.entities.redis.ResetPassword;
 import com.linkty.dto.response.MessageResponse;
 import com.linkty.repositories.UserRepository;
 import com.linkty.repositories.EmailVerificationRepository;
+import com.linkty.repositories.ResetPasswordRepository;
 
 @Service
 @RequiredArgsConstructor
 public class EmailService {
 
     @Value("${redis.email-verification-ttl}")
-    private long timeToLive;
+    private long verificationTtl;
+
+    @Value("${redis.reset-password-ttl}")
+    private long resetPasswordTtl;
 
     private final EmailSender emailSender;
     private final UserRepository userRepository;
     private final EmailVerificationRepository emailVerificationRepository;
+    private final ResetPasswordRepository resetPasswordRepository;
 
     // Sends a verification email to the receiver.
-    public MessageResponse sendVerificationEmail(String receiver,
-            EmailPurposeEnum purpose) {
+    public MessageResponse sendVerificationEmail(String receiver) {
         // Check whether a user with the given email already exists.
-        boolean userExists =
-                userRepository.existsByEmailAndDeletedFalse(receiver);
-
-        // Validate request based on the purpose of email verification.
-        switch (purpose) {
-            // CASE 1. Register: The email must not exist.
-            case EmailPurposeEnum.REGISTER -> {
-                if (userExists)
-                    throw new CustomException(ErrorCode.EMAIL_CONFLICTED);
-            }
-            // CASE 2. Find Password: The email must exist.
-            case EmailPurposeEnum.FIND_PASSWORD -> {
-                if (!userExists)
-                    throw new CustomException(ErrorCode.USER_NOT_FOUND);
-            }
-            default -> throw new CustomException(ErrorCode.INVALID_REQUEST);
+        if (userRepository.existsByEmailAndDeletedFalse(receiver)) {
+            throw new CustomException(ErrorCode.EMAIL_CONFLICTED);
         }
 
         // Creates an 6-digits verification code.
         String code = CodeGenerator.generateNumeric(6);
 
         // Build and save the EmailVerification in Redis.
-        EmailVerification emailVerification = EmailVerification
-                .builder().id(KeyGenerator
-                        .generateEmailVerificationKey(receiver, purpose))
-                .code(code).expire(timeToLive).build();
+        EmailVerification emailVerification = EmailVerification.builder()
+                .email(receiver).code(code).expire(verificationTtl).build();
         emailVerificationRepository.save(emailVerification);
 
         // Send verification email.
-        emailSender.sendVerificationEmail(receiver, code, timeToLive, purpose);
+        emailSender.sendEmailWithTemplate(EmailTemplate.VERIFICATION, receiver,
+                code, verificationTtl);
 
         return new MessageResponse("Verification email sent successfully.");
     }
 
     // Confirms an email verification code.
-    public MessageResponse confirmVerificationCode(String receiver, String code,
-            EmailPurposeEnum purpose) {
-        // Generates a redis email verification key by email and purpose.
-        String id =
-                KeyGenerator.generateEmailVerificationKey(receiver, purpose);
-
-        // Retrieve the email verification stored in Redis by generated id.
+    public MessageResponse confirmVerificationCode(String receiver,
+            String code) {
+        // Retrieve the email verification stored in Redis by email.
         EmailVerification emailVerification =
-                emailVerificationRepository.findById(id).orElseThrow(
+                emailVerificationRepository.findById(receiver).orElseThrow(
                         () -> new CustomException(ErrorCode.INVALID_CODE));
 
         // Check if the verification code is correct.
@@ -82,8 +67,31 @@ public class EmailService {
         }
 
         // Delete the email verification from Redis.
-        emailVerificationRepository.deleteById(id);
+        emailVerificationRepository.deleteById(receiver);
 
         return new MessageResponse("Verification code confirmed successfully.");
+    }
+
+    // Sends a reset password email to the receiver.
+    public MessageResponse sendResetPasswordEmail(String receiver) {
+        // Check whether a user with the given email does not exists.
+        if (!userRepository.existsByEmailAndDeletedFalse(receiver)) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        // Generate raw token and hash token.
+        String rawToken = CodeGenerator.generateToken();
+        String hashToken = CodeGenerator.generateHashToken(rawToken);
+
+        // Build and save the ResetPassword in Redis.
+        ResetPassword resetPassword = ResetPassword.builder().email(receiver)
+                .hashToken(hashToken).expire(resetPasswordTtl).build();
+        resetPasswordRepository.save(resetPassword);
+
+        // Send reset password email.
+        emailSender.sendEmailWithTemplate(EmailTemplate.RESET_PASSWORD,
+                receiver, rawToken, resetPasswordTtl);
+
+        return new MessageResponse("Reset password email sent successfully.");
     }
 }

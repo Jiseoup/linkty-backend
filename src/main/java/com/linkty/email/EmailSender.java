@@ -14,7 +14,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
-import com.linkty.email.EmailPurposeEnum;
 import com.linkty.exception.CustomException;
 import com.linkty.exception.ErrorCode;
 
@@ -28,33 +27,22 @@ public class EmailSender {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
-    // Sends a verification email.
+    // Sends a email with the given template.
     @Async
-    public void sendVerificationEmail(String receiver, String code, long expire,
-            EmailPurposeEnum purpose) {
-        String subject;
-        String template;
-
-        // Set subject and template based on email purpose.
-        switch (purpose) {
-            case EmailPurposeEnum.REGISTER -> {
-                subject = "[Linkty] 회원가입 이메일 인증번호 안내";
-                template = "email/register";
-            }
-            case EmailPurposeEnum.FIND_PASSWORD -> {
-                subject = "[Linkty] 비밀번호 찾기 인증번호 안내";
-                template = "email/find-password";
-            }
-            default -> throw new CustomException(ErrorCode.INVALID_REQUEST);
-        }
+    public void sendEmailWithTemplate(EmailTemplate template, String receiver,
+            String value, long expire) {
+        // Set email subject and template path.
+        String subject = template.getSubject();
+        String templatePath = template.getTemplatePath();
 
         // Set variables for the email template.
         Map<String, String> variables = new HashMap<>();
-        variables.put("code", code);
+        variables.put("subject", subject);
+        variables.put("value", value);
         variables.put("expire", String.valueOf(expire / 60));
 
         // Send email.
-        sendEmail(receiver, subject, template, variables);
+        sendEmail(receiver, subject, templatePath, variables);
     }
 
     // Sends an email with the given subject, template, and variables.

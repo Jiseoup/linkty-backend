@@ -5,8 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.linkty.email.EmailPurposeEnum;
-import com.linkty.dto.request.EmailVerificationRequest;
+import com.linkty.dto.request.EmailRequest;
 import com.linkty.dto.request.EmailVerificationConfirmRequest;
 import com.linkty.dto.response.MessageResponse;
 import com.linkty.services.EmailService;
@@ -21,12 +20,10 @@ public class EmailController {
     // Send verification email.
     @PostMapping("/verification")
     public ResponseEntity<MessageResponse> verification(
-            @RequestBody @Valid EmailVerificationRequest request) {
+            @RequestBody @Valid EmailRequest request) {
         String email = request.getEmail();
-        EmailPurposeEnum purpose = request.getPurpose();
 
-        MessageResponse response =
-                emailService.sendVerificationEmail(email, purpose);
+        MessageResponse response = emailService.sendVerificationEmail(email);
         return ResponseEntity.ok(response);
     }
 
@@ -36,10 +33,19 @@ public class EmailController {
             @RequestBody @Valid EmailVerificationConfirmRequest request) {
         String email = request.getEmail();
         String code = request.getCode();
-        EmailPurposeEnum purpose = request.getPurpose();
 
         MessageResponse response =
-                emailService.confirmVerificationCode(email, code, purpose);
+                emailService.confirmVerificationCode(email, code);
+        return ResponseEntity.ok(response);
+    }
+
+    // Send reset password email.
+    @PostMapping("/reset-password")
+    public ResponseEntity<MessageResponse> resetPassword(
+            @RequestBody @Valid EmailRequest request) {
+        String email = request.getEmail();
+
+        MessageResponse response = emailService.sendResetPasswordEmail(email);
         return ResponseEntity.ok(response);
     }
 }

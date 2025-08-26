@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-import com.linkty.email.EmailPurposeEnum;
 import com.linkty.exception.ValidationErrorCode;
 
 @Getter
@@ -17,6 +16,4 @@ public class EmailVerificationConfirmRequest {
     @Size(message = ValidationErrorCode.INVALID_LENGTH, min = 6, max = 6)
     @NotBlank(message = ValidationErrorCode.REQUIRED)
     private String code;
-
-    private EmailPurposeEnum purpose;
 }

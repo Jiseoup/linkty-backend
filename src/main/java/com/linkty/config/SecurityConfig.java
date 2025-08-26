@@ -54,7 +54,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/{shortenUrl}", "/shorten-url",
                                 "/email/verification",
-                                "/email/verification/confirm", "/user/register",
+                                "/email/verification/confirm",
+                                "/email/reset-password", "/user/register",
                                 "/user/login", "/user/refresh-token")
                         .permitAll().anyRequest().authenticated())
 

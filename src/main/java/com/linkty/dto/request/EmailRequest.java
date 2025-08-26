@@ -4,14 +4,11 @@ import lombok.Getter;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-import com.linkty.email.EmailPurposeEnum;
 import com.linkty.exception.ValidationErrorCode;
 
 @Getter
-public class EmailVerificationRequest {
+public class EmailRequest {
     @Email(message = ValidationErrorCode.INVALID_FORMAT)
     @NotBlank(message = ValidationErrorCode.REQUIRED)
     private String email;
-
-    private EmailPurposeEnum purpose;
 }
