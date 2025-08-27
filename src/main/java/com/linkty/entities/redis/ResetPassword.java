@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
+import org.springframework.data.redis.core.index.Indexed;
 
 @Getter
 @Builder
@@ -21,6 +22,7 @@ public class ResetPassword implements Serializable {
     @Id
     private String email;
 
+    @Indexed
     private String hashToken;
 
     @TimeToLive

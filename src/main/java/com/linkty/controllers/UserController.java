@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.linkty.dto.request.UserRequest;
 import com.linkty.dto.request.RegisterRequest;
+import com.linkty.dto.request.ResetPasswordRequest;
 import com.linkty.dto.response.MessageResponse;
 import com.linkty.dto.response.TokenResponse;
 import com.linkty.services.UserService;
@@ -69,6 +70,27 @@ public class UserController {
         MessageResponse messageResponse =
                 userService.userLogout(authToken, response);
         return ResponseEntity.ok(messageResponse);
+    }
+
+    // Validate reset password token.
+    @GetMapping("/reset-password")
+    public ResponseEntity<MessageResponse> validateResetPassword(
+            @RequestParam String token) {
+        MessageResponse response =
+                userService.validateResetPasswordToken(token);
+        return ResponseEntity.ok(response);
+    }
+
+    // Reset user password.
+    @PostMapping("/reset-password")
+    public ResponseEntity<MessageResponse> resetPassword(
+            @RequestBody @Valid ResetPasswordRequest request) {
+        String token = request.getToken();
+        String password = request.getPassword();
+
+        MessageResponse response =
+                userService.resetUserPassword(token, password);
+        return ResponseEntity.ok(response);
     }
 
     // Reissue access token.

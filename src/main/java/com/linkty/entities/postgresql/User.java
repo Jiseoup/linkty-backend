@@ -45,4 +45,9 @@ public class User {
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
+
+    // Change user password.
+    public void changePassword(String password) {
+        this.password = password;
+    }
 }

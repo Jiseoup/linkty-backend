@@ -29,6 +29,7 @@ public enum ErrorCode {
     // User Service Error Codes.
     INVALID_EMAIL_OR_PASSWORD(HttpStatus.UNAUTHORIZED, "Invalid email or password."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "Invalid password."),
+    RESET_PASSWORD_EXPIRED(HttpStatus.GONE, "Reset password URL has expired."),
 
     // Email Service Error Codes.
     SEND_EMAIL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to send email."),

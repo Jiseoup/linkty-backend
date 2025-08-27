@@ -56,7 +56,8 @@ public class SecurityConfig {
                                 "/email/verification",
                                 "/email/verification/confirm",
                                 "/email/reset-password", "/user/register",
-                                "/user/login", "/user/refresh-token")
+                                "/user/login", "/user/reset-password",
+                                "/user/refresh-token")
                         .permitAll().anyRequest().authenticated())
 
                 // Add JWT authentication filter before UsernamePasswordAuthenticationFilter.

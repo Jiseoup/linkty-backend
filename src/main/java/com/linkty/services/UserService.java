@@ -11,14 +11,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.linkty.jwt.JwtProvider;
+import com.linkty.utils.CodeGenerator;
 import com.linkty.exception.CustomException;
 import com.linkty.exception.ErrorCode;
 import com.linkty.entities.postgresql.User;
 import com.linkty.entities.redis.RefreshToken;
+import com.linkty.entities.redis.ResetPassword;
 import com.linkty.dto.response.MessageResponse;
 import com.linkty.dto.response.TokenResponse;
 import com.linkty.repositories.UserRepository;
 import com.linkty.repositories.RefreshTokenRepository;
+import com.linkty.repositories.ResetPasswordRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +39,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final ResetPasswordRepository resetPasswordRepository;
 
     // Creates an user account.
     @Transactional
@@ -169,6 +173,43 @@ public class UserService {
         response.setHeader("Set-Cookie", cookie);
 
         return new MessageResponse("User logged out successfully.");
+    }
+
+    // Validate reset password URL token.
+    public MessageResponse validateResetPasswordToken(String token) {
+        // Convert the raw token into the hash token.
+        String hashToken = CodeGenerator.generateHashToken(token);
+
+        // Throw exception if the hash token is invalid.
+        if (!resetPasswordRepository.existsByHashToken(hashToken)) {
+            throw new CustomException(ErrorCode.RESET_PASSWORD_EXPIRED);
+        }
+
+        return new MessageResponse("Valid reset password token.");
+    }
+
+    // Handles user reset password process.
+    @Transactional
+    public MessageResponse resetUserPassword(String token, String password) {
+        // Convert the raw token into the hash token.
+        String hashToken = CodeGenerator.generateHashToken(token);
+
+        // Retrieve the reset password entitiy stored in Redis by hashToken.
+        ResetPassword resetPassword =
+                resetPasswordRepository.findByHashToken(hashToken).orElseThrow(
+                        () -> new CustomException(ErrorCode.INVALID_TOKEN));
+
+        // Retrieve the user by email and change the password.
+        String email = resetPassword.getEmail();
+        User user =
+                userRepository.findByEmailAndDeletedFalse(email).orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        user.changePassword(passwordEncoder.encode(password));
+
+        // Delete the reset password entitiy from Redis.
+        resetPasswordRepository.deleteById(email);
+
+        return new MessageResponse("Reset user password successfully.");
     }
 
     // Refresh access token using a valid refresh token.
