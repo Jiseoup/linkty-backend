@@ -125,12 +125,12 @@ public class UserService {
         if (Boolean.TRUE.equals(rememberMe)) {
             timeToLive = redisTtl;
             cookie = String.format(
-                    "refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=None",
+                    "refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=Lax",
                     refreshToken, (int) timeToLive);
         } else {
             timeToLive = shortRedisTtl;
             cookie = String.format(
-                    "refreshToken=%s; Path=/; HttpOnly; Secure; SameSite=None",
+                    "refreshToken=%s; Path=/; HttpOnly; Secure; SameSite=Lax",
                     refreshToken);
         }
 
@@ -169,7 +169,7 @@ public class UserService {
 
         // Temp function: Remove refresh token cookie for development.
         String cookie =
-                "refreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=None";
+                "refreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax";
         response.setHeader("Set-Cookie", cookie);
 
         return new MessageResponse("User logged out successfully.");
