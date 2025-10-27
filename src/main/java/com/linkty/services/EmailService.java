@@ -34,7 +34,7 @@ public class EmailService {
     // Sends a verification email to the receiver.
     public MessageResponse sendVerificationEmail(String receiver) {
         // Check whether a user with the given email already exists.
-        if (userRepository.existsByEmailAndDeletedFalse(receiver)) {
+        if (userRepository.existsByEmail(receiver)) {
             throw new CustomException(ErrorCode.EMAIL_CONFLICTED);
         }
 
@@ -75,7 +75,7 @@ public class EmailService {
     // Sends a reset password email to the receiver.
     public MessageResponse sendResetPasswordEmail(String receiver) {
         // Check whether a user with the given email does not exists.
-        if (!userRepository.existsByEmailAndDeletedFalse(receiver)) {
+        if (!userRepository.existsByEmail(receiver)) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
 

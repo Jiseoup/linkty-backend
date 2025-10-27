@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import com.linkty.exception.ValidationErrorCode;
 
 @Getter
-public class UserRequest {
+public class LoginRequest {
     @Email(message = ValidationErrorCode.INVALID_FORMAT)
     @NotBlank(message = ValidationErrorCode.REQUIRED)
     private String email;

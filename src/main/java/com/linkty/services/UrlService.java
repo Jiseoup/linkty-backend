@@ -46,7 +46,7 @@ public class UrlService {
         User user = null;
         if (token != null) {
             String email = jwtProvider.getEmailFromToken(token);
-            user = userRepository.findByEmailAndDeletedFalse(email).orElseThrow(
+            user = userRepository.findByEmail(email).orElseThrow(
                     () -> new CustomException(ErrorCode.USER_NOT_FOUND));
         }
 

@@ -1,5 +1,6 @@
 package com.linkty.entities.postgresql;
 
+import java.util.List;
 import java.time.ZonedDateTime;
 
 import lombok.Getter;
@@ -49,14 +50,14 @@ public class Url {
     @Column(name = "create_date", nullable = false)
     private ZonedDateTime createDate;
 
-    @Column(name = "deleted", nullable = false)
-    private boolean deleted;
+    @OneToMany(mappedBy = "url", cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<Log> logs;
 
     @PrePersist
     public void defaultValue() {
         createDate = ZonedDateTime.now();
         clickCount = 0;
-        deleted = false;
     }
 
     // Increase the clickCount.

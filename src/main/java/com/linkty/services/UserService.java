@@ -1,10 +1,7 @@
 package com.linkty.services;
 
-import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
-// import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,31 +41,14 @@ public class UserService {
     // Creates an user account.
     @Transactional
     public MessageResponse createAccount(String email, String password) {
-        // Retrieve a not deleted user with the given email.
-        Optional<User> activeUser =
-                userRepository.findByEmailAndDeletedFalse(email);
-
-        // If not deleted user exists, throws an exception.
-        if (activeUser.isPresent()) {
+        // Check whether a user with the given email already exists.
+        if (userRepository.existsByEmail(email)) {
             throw new CustomException(ErrorCode.EMAIL_CONFLICTED);
         }
 
-        // Retrieve a deleted user with the given email.
-        Optional<User> inactiveUser = userRepository.findByEmail(email);
-
-        User user;
-        // If deleted user exists, restore an user.
-        if (inactiveUser.isPresent()) {
-            User userToRestore = inactiveUser.get();
-            user = userToRestore.toBuilder().deleted(false)
-                    .password(passwordEncoder.encode(password)).build();
-        }
-        // If deleted user not exists, create a new user.
-        else {
-            user = User.builder().email(email)
-                    .password(passwordEncoder.encode(password)).build();
-        }
-        // Save the User entity.
+        // Build and save the User entity.
+        User user = User.builder().email(email)
+                .password(passwordEncoder.encode(password)).build();
         userRepository.save(user);
 
         return new MessageResponse("User account created successfully.");
@@ -76,19 +56,36 @@ public class UserService {
 
     // Deletes an user account.
     @Transactional
-    public MessageResponse deleteAccount(String email, String password) {
+    public MessageResponse deleteAccount(String authToken, String password,
+            HttpServletResponse response) {
+        // Extract and validate the token from the authorization header.
+        String token = jwtProvider.resolveToken(authToken);
+        if (token == null) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
+
+        // Get email from the provided token.
+        String email = jwtProvider.getEmailFromToken(token);
+
         // Retrieve the User entity by email.
-        User user =
-                userRepository.findByEmailAndDeletedFalse(email).orElseThrow(
-                        () -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // Validate user password.
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
-        // Delete user.
-        user.setDeleted(true);
+        // Delete refresh token from Redis.
+        refreshTokenRepository.deleteById(email);
+
+        // Remove HttpOnly refresh token cookie.
+        String cookie =
+                "refreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax";
+        response.setHeader("Set-Cookie", cookie);
+
+        // Delete user. (CASCADE delete will remove all associated Urls and Logs)
+        userRepository.delete(user);
 
         return new MessageResponse("User account deleted successfully.");
     }
@@ -97,9 +94,8 @@ public class UserService {
     public TokenResponse userLogin(String email, String password,
             Boolean rememberMe, HttpServletResponse response) {
         // Retrieve the User entity by email.
-        User user = userRepository.findByEmailAndDeletedFalse(email)
-                .orElseThrow(() -> new CustomException(
-                        ErrorCode.INVALID_EMAIL_OR_PASSWORD));
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(ErrorCode.INVALID_EMAIL_OR_PASSWORD));
 
         // Validate user password.
         if (!passwordEncoder.matches(password, user.getPassword())) {
@@ -111,15 +107,7 @@ public class UserService {
         String refreshToken =
                 jwtProvider.generateRefreshToken(email, rememberMe);
 
-        // // Set HttpOnly refresh token cookie.
-        // Cookie cookie = new Cookie("refreshToken", refreshToken);
-        // cookie.setHttpOnly(true);
-        // cookie.setSecure(true);
-        // cookie.setPath("/");
-        // cookie.setMaxAge((int) timeToLive);
-        // response.addCookie(cookie);
-
-        // Temp function: Set refresh token cookie for development.
+        // Set HttpOnly refresh token cookie.
         String cookie;
         long timeToLive;
         if (Boolean.TRUE.equals(rememberMe)) {
@@ -159,15 +147,7 @@ public class UserService {
         // Delete refresh token from Redis.
         refreshTokenRepository.deleteById(email);
 
-        // // Remove HttpOnly refresh token cookie.
-        // Cookie cookie = new Cookie("refreshToken", null);
-        // cookie.setHttpOnly(true);
-        // cookie.setSecure(true);
-        // cookie.setPath("/");
-        // cookie.setMaxAge(0);
-        // response.addCookie(cookie);
-
-        // Temp function: Remove refresh token cookie for development.
+        // Remove HttpOnly refresh token cookie.
         String cookie =
                 "refreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax";
         response.setHeader("Set-Cookie", cookie);
@@ -201,9 +181,8 @@ public class UserService {
 
         // Retrieve the user by email and change the password.
         String email = resetPassword.getEmail();
-        User user =
-                userRepository.findByEmailAndDeletedFalse(email).orElseThrow(
-                        () -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND));
         user.changePassword(passwordEncoder.encode(password));
 
         // Delete the reset password entitiy from Redis.

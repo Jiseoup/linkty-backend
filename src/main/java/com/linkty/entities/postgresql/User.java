@@ -1,5 +1,6 @@
 package com.linkty.entities.postgresql;
 
+import java.util.List;
 import java.time.ZonedDateTime;
 
 import lombok.Getter;
@@ -32,18 +33,13 @@ public class User {
     @Column(name = "join_date", nullable = false)
     private ZonedDateTime joinDate;
 
-    @Column(name = "deleted", nullable = false)
-    private boolean deleted;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<Url> urls;
 
     @PrePersist
     public void defaultValue() {
         joinDate = ZonedDateTime.now();
-        deleted = false;
-    }
-
-    // Set deleted field as true or false.
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
     }
 
     // Change user password.

@@ -6,8 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.linkty.dto.request.UserRequest;
 import com.linkty.dto.request.RegisterRequest;
+import com.linkty.dto.request.WithdrawRequest;
+import com.linkty.dto.request.LoginRequest;
 import com.linkty.dto.request.ResetPasswordRequest;
 import com.linkty.dto.response.MessageResponse;
 import com.linkty.dto.response.TokenResponse;
@@ -40,18 +41,20 @@ public class UserController {
     // User withdrawal.
     @DeleteMapping("/withdraw")
     public ResponseEntity<MessageResponse> withdraw(
-            @RequestBody @Valid UserRequest request) {
-        String email = request.getEmail();
+            @RequestHeader("Authorization") String authToken,
+            @RequestBody @Valid WithdrawRequest request,
+            HttpServletResponse response) {
         String password = request.getPassword();
 
-        MessageResponse response = userService.deleteAccount(email, password);
-        return ResponseEntity.ok(response);
+        MessageResponse messageResponse =
+                userService.deleteAccount(authToken, password, response);
+        return ResponseEntity.ok(messageResponse);
     }
 
     // User login.
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(
-            @RequestBody @Valid UserRequest request,
+            @RequestBody @Valid LoginRequest request,
             HttpServletResponse response) {
         String email = request.getEmail();
         String password = request.getPassword();
