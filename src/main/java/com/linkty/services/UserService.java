@@ -38,6 +38,22 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final ResetPasswordRepository resetPasswordRepository;
 
+    // Extract and validate the authToken from the header and return email.
+    private String getEmailFromAuthToken(String authToken) {
+        String token = jwtProvider.resolveToken(authToken);
+        if (token == null) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
+        return jwtProvider.getEmailFromToken(token);
+    }
+
+    // Clear refresh token from HttpOnly Cookie.
+    private void clearRefreshTokenCookie(HttpServletResponse response) {
+        String cookie =
+                "refreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax";
+        response.setHeader("Set-Cookie", cookie);
+    }
+
     // Creates an user account.
     @Transactional
     public MessageResponse createAccount(String email, String password) {
@@ -58,14 +74,8 @@ public class UserService {
     @Transactional
     public MessageResponse deleteAccount(String authToken, String password,
             HttpServletResponse response) {
-        // Extract and validate the token from the authorization header.
-        String token = jwtProvider.resolveToken(authToken);
-        if (token == null) {
-            throw new CustomException(ErrorCode.INVALID_TOKEN);
-        }
-
-        // Get email from the provided token.
-        String email = jwtProvider.getEmailFromToken(token);
+        // Get email from the provided auth token.
+        String email = getEmailFromAuthToken(authToken);
 
         // Retrieve the User entity by email.
         User user = userRepository.findByEmail(email).orElseThrow(
@@ -76,13 +86,9 @@ public class UserService {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
-        // Delete refresh token from Redis.
+        // Delete refresh token from Redis and Cookie.
         refreshTokenRepository.deleteById(email);
-
-        // Remove HttpOnly refresh token cookie.
-        String cookie =
-                "refreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax";
-        response.setHeader("Set-Cookie", cookie);
+        clearRefreshTokenCookie(response);
 
         // Delete user. (CASCADE delete will remove all associated Urls and Logs)
         userRepository.delete(user);
@@ -135,22 +141,12 @@ public class UserService {
     // Handles user logout process.
     public MessageResponse userLogout(String authToken,
             HttpServletResponse response) {
-        // Extract and validate the token from the authorization header.
-        String token = jwtProvider.resolveToken(authToken);
-        if (token == null) {
-            throw new CustomException(ErrorCode.INVALID_TOKEN);
-        }
+        // Get email from the provided auth token.
+        String email = getEmailFromAuthToken(authToken);
 
-        // Get email from the provided token.
-        String email = jwtProvider.getEmailFromToken(token);
-
-        // Delete refresh token from Redis.
+        // Delete refresh token from Redis and Cookie.
         refreshTokenRepository.deleteById(email);
-
-        // Remove HttpOnly refresh token cookie.
-        String cookie =
-                "refreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax";
-        response.setHeader("Set-Cookie", cookie);
+        clearRefreshTokenCookie(response);
 
         return new MessageResponse("User logged out successfully.");
     }
