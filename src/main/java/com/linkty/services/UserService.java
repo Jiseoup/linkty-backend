@@ -93,6 +93,7 @@ public class UserService {
     }
 
     // Handles user login process.
+    @Transactional
     public TokenResponse userLogin(String email, String password,
             Boolean rememberMe, HttpServletResponse response) {
         // Retrieve the User entity by email.
@@ -103,6 +104,9 @@ public class UserService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_EMAIL_OR_PASSWORD);
         }
+
+        // Update last login timestamp.
+        user.updateLastLogin();
 
         // Generate JWT tokens.
         String accessToken = jwtProvider.generateAccessToken(email);

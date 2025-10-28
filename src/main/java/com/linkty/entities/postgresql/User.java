@@ -33,6 +33,9 @@ public class User {
     @Column(name = "join_date", nullable = false)
     private ZonedDateTime joinDate;
 
+    @Column(name = "last_login", nullable = true)
+    private ZonedDateTime lastLogin;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<Url> urls;
@@ -40,6 +43,11 @@ public class User {
     @PrePersist
     public void defaultValue() {
         joinDate = ZonedDateTime.now();
+    }
+
+    // Update last login timestamp.
+    public void updateLastLogin() {
+        this.lastLogin = ZonedDateTime.now();
     }
 
     // Change user password.
