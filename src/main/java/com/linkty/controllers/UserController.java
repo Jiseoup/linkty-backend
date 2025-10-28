@@ -10,6 +10,7 @@ import com.linkty.dto.request.RegisterRequest;
 import com.linkty.dto.request.WithdrawRequest;
 import com.linkty.dto.request.LoginRequest;
 import com.linkty.dto.request.ResetPasswordRequest;
+import com.linkty.dto.request.ChangePasswordRequest;
 import com.linkty.dto.response.MessageResponse;
 import com.linkty.dto.response.TokenResponse;
 import com.linkty.services.UserService;
@@ -94,6 +95,20 @@ public class UserController {
         MessageResponse response =
                 userService.resetUserPassword(token, password);
         return ResponseEntity.ok(response);
+    }
+
+    // Change user password.
+    @PostMapping("/change-password")
+    public ResponseEntity<MessageResponse> changePassword(
+            @RequestHeader("Authorization") String authToken,
+            @RequestBody @Valid ChangePasswordRequest request,
+            HttpServletResponse response) {
+        String currentPassword = request.getCurrentPassword();
+        String newPassword = request.getNewPassword();
+
+        MessageResponse messageResponse = userService.changeUserPassword(
+                authToken, currentPassword, newPassword, response);
+        return ResponseEntity.ok(messageResponse);
     }
 
     // Reissue access token.

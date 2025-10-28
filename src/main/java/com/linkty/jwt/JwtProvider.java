@@ -93,4 +93,13 @@ public class JwtProvider {
             throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
     }
+
+    // Extract and validate the bearerToken from the authorization header and return email.
+    public String getEmailFromBearerToken(String bearerToken) {
+        String token = resolveToken(bearerToken);
+        if (token == null) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
+        return getEmailFromToken(token);
+    }
 }

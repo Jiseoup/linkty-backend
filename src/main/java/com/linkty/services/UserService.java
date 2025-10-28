@@ -38,20 +38,17 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final ResetPasswordRepository resetPasswordRepository;
 
-    // Extract and validate the authToken from the header and return email.
-    private String getEmailFromAuthToken(String authToken) {
-        String token = jwtProvider.resolveToken(authToken);
-        if (token == null) {
-            throw new CustomException(ErrorCode.INVALID_TOKEN);
-        }
-        return jwtProvider.getEmailFromToken(token);
-    }
-
     // Clear refresh token from HttpOnly Cookie.
     private void clearRefreshTokenCookie(HttpServletResponse response) {
         String cookie =
                 "refreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax";
         response.setHeader("Set-Cookie", cookie);
+    }
+
+    // Delete refresh token from Redis and HttpOnly Cookie.
+    private void processLogout(String email, HttpServletResponse response) {
+        refreshTokenRepository.deleteById(email);
+        clearRefreshTokenCookie(response);
     }
 
     // Creates an user account.
@@ -74,8 +71,8 @@ public class UserService {
     @Transactional
     public MessageResponse deleteAccount(String authToken, String password,
             HttpServletResponse response) {
-        // Get email from the provided auth token.
-        String email = getEmailFromAuthToken(authToken);
+        // Get email from the provided authToken.
+        String email = jwtProvider.getEmailFromBearerToken(authToken);
 
         // Retrieve the User entity by email.
         User user = userRepository.findByEmail(email).orElseThrow(
@@ -86,12 +83,11 @@ public class UserService {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
-        // Delete refresh token from Redis and Cookie.
-        refreshTokenRepository.deleteById(email);
-        clearRefreshTokenCookie(response);
-
         // Delete user. (CASCADE delete will remove all associated Urls and Logs)
         userRepository.delete(user);
+
+        // Process Logout: Delete refresh token from redis and cookie.
+        processLogout(email, response);
 
         return new MessageResponse("User account deleted successfully.");
     }
@@ -141,12 +137,11 @@ public class UserService {
     // Handles user logout process.
     public MessageResponse userLogout(String authToken,
             HttpServletResponse response) {
-        // Get email from the provided auth token.
-        String email = getEmailFromAuthToken(authToken);
+        // Get email from the provided authToken.
+        String email = jwtProvider.getEmailFromBearerToken(authToken);
 
-        // Delete refresh token from Redis and Cookie.
-        refreshTokenRepository.deleteById(email);
-        clearRefreshTokenCookie(response);
+        // Process Logout: Delete refresh token from redis and cookie.
+        processLogout(email, response);
 
         return new MessageResponse("User logged out successfully.");
     }
@@ -185,6 +180,32 @@ public class UserService {
         resetPasswordRepository.deleteById(email);
 
         return new MessageResponse("Reset user password successfully.");
+    }
+
+    // Handles user change password process.
+    @Transactional
+    public MessageResponse changeUserPassword(String authToken,
+            String currentPassword, String newPassword,
+            HttpServletResponse response) {
+        // Get email from the provided authToken.
+        String email = jwtProvider.getEmailFromBearerToken(authToken);
+
+        // Retrieve the User entity by email.
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // Validate current user password.
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        // Change password with encoded new password.
+        user.changePassword(passwordEncoder.encode(newPassword));
+
+        // Process Logout: Delete refresh token from redis and cookie.
+        processLogout(email, response);
+
+        return new MessageResponse("Change user password successfully.");
     }
 
     // Refresh access token using a valid refresh token.
