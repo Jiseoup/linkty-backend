@@ -196,7 +196,7 @@ public class UserService {
 
         // Validate current user password.
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+            throw new CustomException(ErrorCode.INVALID_CURRENT_PASSWORD);
         }
 
         // Change password with encoded new password.
