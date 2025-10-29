@@ -47,6 +47,9 @@ public class Url {
     @Column(name = "click_count", nullable = false)
     private int clickCount;
 
+    @Column(name = "starred", nullable = false)
+    private boolean starred;
+
     @Column(name = "create_date", nullable = false)
     private ZonedDateTime createDate;
 

@@ -19,4 +19,8 @@ public class UrlRequest {
     private ZonedDateTime activeDate;
 
     private ZonedDateTime expireDate;
+
+    private boolean starred;
+
+    private boolean nonMemberCreation;
 }

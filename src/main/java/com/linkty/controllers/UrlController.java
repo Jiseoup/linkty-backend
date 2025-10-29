@@ -27,9 +27,11 @@ public class UrlController {
         String originalUrl = request.getOriginalUrl();
         ZonedDateTime activeDate = request.getActiveDate();
         ZonedDateTime expireDate = request.getExpireDate();
+        boolean starred = request.isStarred();
+        boolean nonMemberCreation = request.isNonMemberCreation();
 
         UrlResponse response = urlService.createShortenUrl(alias, originalUrl,
-                activeDate, expireDate, authToken);
+                activeDate, expireDate, starred, nonMemberCreation, authToken);
         return ResponseEntity.ok(response);
     }
 
