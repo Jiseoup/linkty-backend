@@ -27,9 +27,9 @@ public class UrlService {
 
     // Creates a new shorten url based on the original url.
     @Transactional
-    public UrlResponse createShortenUrl(String alias, String originalUrl,
-            ZonedDateTime activeDate, ZonedDateTime expireDate, boolean starred,
-            boolean nonMemberCreation, String authToken) {
+    public UrlResponse createShortenUrl(String originalUrl,
+            ZonedDateTime activeDate, ZonedDateTime expireDate, String alias,
+            boolean starred, boolean nonMemberCreation, String authToken) {
         // Validate the original url.
         UrlValidator.validate(originalUrl);
 
@@ -56,16 +56,22 @@ public class UrlService {
             cleanAlias = null;
         }
 
+        // Reset user and advanced settings for non-member creation.
+        if (nonMemberCreation) {
+            user = null;
+            activeDate = null;
+            expireDate = null;
+            cleanAlias = null;
+            starred = false;
+        }
+
         // Creates an 6-character shorten url.
         String shortenUrl = CodeGenerator.generateAlphanumeric(6);
 
         // Build and save the Url entity.
-        Url url = Url.builder().alias(nonMemberCreation ? null : cleanAlias)
-                .originalUrl(originalUrl).shortenUrl(shortenUrl)
-                .activeDate(nonMemberCreation ? null : activeDate)
-                .expireDate(nonMemberCreation ? null : expireDate)
-                .starred(nonMemberCreation ? false : starred)
-                .user(nonMemberCreation ? null : user).build();
+        Url url = Url.builder().originalUrl(originalUrl).shortenUrl(shortenUrl)
+                .activeDate(activeDate).expireDate(expireDate).alias(cleanAlias)
+                .starred(starred).user(user).build();
         urlRepository.save(url);
 
         return new UrlResponse(shortenUrl, cleanAlias, activeDate, expireDate);

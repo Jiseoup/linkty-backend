@@ -23,15 +23,16 @@ public class UrlController {
             @RequestBody @Valid UrlRequest request,
             @RequestHeader(value = "Authorization",
                     required = false) String authToken) {
-        String alias = request.getAlias();
         String originalUrl = request.getOriginalUrl();
         ZonedDateTime activeDate = request.getActiveDate();
         ZonedDateTime expireDate = request.getExpireDate();
+        String alias = request.getAlias();
         boolean starred = request.isStarred();
         boolean nonMemberCreation = request.isNonMemberCreation();
 
-        UrlResponse response = urlService.createShortenUrl(alias, originalUrl,
-                activeDate, expireDate, starred, nonMemberCreation, authToken);
+        UrlResponse response =
+                urlService.createShortenUrl(originalUrl, activeDate, expireDate,
+                        alias, starred, nonMemberCreation, authToken);
         return ResponseEntity.ok(response);
     }
 
