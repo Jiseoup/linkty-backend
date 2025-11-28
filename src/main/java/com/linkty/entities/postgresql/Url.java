@@ -50,6 +50,9 @@ public class Url {
     @Column(name = "starred", nullable = false)
     private boolean starred;
 
+    @Column(name = "active", nullable = false)
+    private boolean active;
+
     @Column(name = "create_date", nullable = false)
     private ZonedDateTime createDate;
 
@@ -59,12 +62,18 @@ public class Url {
 
     @PrePersist
     public void defaultValue() {
-        createDate = ZonedDateTime.now();
         clickCount = 0;
+        active = true;
+        createDate = ZonedDateTime.now();
     }
 
     // Increase the clickCount.
     public void increaseClickCount() {
         this.clickCount++;
+    }
+
+    // Toggle the active status.
+    public void toggleActive() {
+        this.active = !this.active;
     }
 }
