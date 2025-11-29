@@ -36,21 +36,22 @@ public class JwtProvider {
     }
 
     // Generate JWT access token.
-    public String generateAccessToken(String email) {
-        return generateToken(email, accessTokenValidity);
+    public String generateAccessToken(String email, Long userId) {
+        return generateToken(email, userId, accessTokenValidity);
     }
 
     // Generate JWT refresh token.
-    public String generateRefreshToken(String email, Boolean rememberMe) {
-        return generateToken(email,
+    public String generateRefreshToken(String email, Long userId,
+            Boolean rememberMe) {
+        return generateToken(email, userId,
                 rememberMe ? refreshTokenValidity : shortRefreshTokenValidity);
     }
 
     // Common method to generate JWT tokens.
-    private String generateToken(String email, long validity) {
+    private String generateToken(String email, Long userId, long validity) {
         Date date = new Date();
         return Jwts.builder().setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                .setSubject(email).setIssuedAt(date)
+                .setSubject(email).claim("userId", userId).setIssuedAt(date)
                 .setExpiration(new Date(date.getTime() + validity))
                 .signWith(key).compact();
     }
@@ -77,16 +78,16 @@ public class JwtProvider {
 
     // Get authentication object from token.
     public Authentication getAuthentication(String token) {
-        String email = getEmailFromToken(token);
+        String email = getClaimsFromToken(token).getSubject();
         return new UsernamePasswordAuthenticationToken(email, null,
                 Collections.emptyList());
     }
 
-    // Get email from the JWT token.
-    public String getEmailFromToken(String token) {
+    // Get claims from the JWT token.
+    public Claims getClaimsFromToken(String token) {
         try {
             return Jwts.parserBuilder().setSigningKey(key).build()
-                    .parseClaimsJws(token).getBody().getSubject();
+                    .parseClaimsJws(token).getBody();
         } catch (ExpiredJwtException e) {
             throw new CustomException(ErrorCode.INVALID_TOKEN);
         } catch (JwtException | IllegalArgumentException e) {
@@ -94,12 +95,12 @@ public class JwtProvider {
         }
     }
 
-    // Extract and validate the bearerToken from the authorization header and return email.
-    public String getEmailFromBearerToken(String bearerToken) {
+    // Extract and validate the bearerToken from the authorization header and return claims.
+    public Claims getClaimsFromBearerToken(String bearerToken) {
         String token = resolveToken(bearerToken);
         if (token == null) {
             throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
-        return getEmailFromToken(token);
+        return getClaimsFromToken(token);
     }
 }

@@ -1,5 +1,6 @@
 package com.linkty.services;
 
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
 import jakarta.servlet.http.HttpServletResponse;
@@ -72,7 +73,8 @@ public class UserService {
     public MessageResponse deleteAccount(String authToken, String password,
             HttpServletResponse response) {
         // Get email from the provided authToken.
-        String email = jwtProvider.getEmailFromBearerToken(authToken);
+        String email =
+                jwtProvider.getClaimsFromBearerToken(authToken).getSubject();
 
         // Retrieve the User entity by email.
         User user = userRepository.findByEmail(email).orElseThrow(
@@ -109,9 +111,10 @@ public class UserService {
         user.updateLastLogin();
 
         // Generate JWT tokens.
-        String accessToken = jwtProvider.generateAccessToken(email);
+        Long userId = user.getId();
+        String accessToken = jwtProvider.generateAccessToken(email, userId);
         String refreshToken =
-                jwtProvider.generateRefreshToken(email, rememberMe);
+                jwtProvider.generateRefreshToken(email, userId, rememberMe);
 
         // Set HttpOnly refresh token cookie.
         String cookie;
@@ -142,7 +145,8 @@ public class UserService {
     public MessageResponse userLogout(String authToken,
             HttpServletResponse response) {
         // Get email from the provided authToken.
-        String email = jwtProvider.getEmailFromBearerToken(authToken);
+        String email =
+                jwtProvider.getClaimsFromBearerToken(authToken).getSubject();
 
         // Process Logout: Delete refresh token from redis and cookie.
         processLogout(email, response);
@@ -192,7 +196,8 @@ public class UserService {
             String currentPassword, String newPassword,
             HttpServletResponse response) {
         // Get email from the provided authToken.
-        String email = jwtProvider.getEmailFromBearerToken(authToken);
+        String email =
+                jwtProvider.getClaimsFromBearerToken(authToken).getSubject();
 
         // Retrieve the User entity by email.
         User user = userRepository.findByEmail(email).orElseThrow(
@@ -214,8 +219,10 @@ public class UserService {
 
     // Refresh access token using a valid refresh token.
     public TokenResponse refreshToken(String refreshToken) {
-        // Get email from the refresh token.
-        String email = jwtProvider.getEmailFromToken(refreshToken);
+        // Get email and user id from the refresh token.
+        Claims claims = jwtProvider.getClaimsFromToken(refreshToken);
+        String email = claims.getSubject();
+        Long userId = claims.get("userId", Long.class);
 
         // Retrieve the refresh token stored in Redis by email.
         RefreshToken redisRefreshToken =
@@ -228,7 +235,7 @@ public class UserService {
         }
 
         // Generate new access token.
-        String accessToken = jwtProvider.generateAccessToken(email);
+        String accessToken = jwtProvider.generateAccessToken(email, userId);
 
         return new TokenResponse(accessToken);
     }

@@ -45,7 +45,7 @@ public class UrlService {
         // Retrieve the User entity if authToken exists.
         User user = null;
         if (token != null) {
-            String email = jwtProvider.getEmailFromToken(token);
+            String email = jwtProvider.getClaimsFromToken(token).getSubject();
             user = userRepository.findByEmail(email).orElseThrow(
                     () -> new CustomException(ErrorCode.USER_NOT_FOUND));
         }
