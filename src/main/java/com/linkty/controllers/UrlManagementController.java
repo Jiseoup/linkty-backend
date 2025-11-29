@@ -1,6 +1,7 @@
 package com.linkty.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,6 @@ public class UrlManagementController {
 
         MessageResponse response =
                 urlManagementService.toggleUrlActive(authToken, urlId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

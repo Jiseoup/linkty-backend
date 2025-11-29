@@ -2,6 +2,7 @@ package com.linkty.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public class EmailController {
         String email = request.getEmail();
 
         MessageResponse response = emailService.sendVerificationEmail(email);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     // Confirm an email verification code.
@@ -36,7 +37,7 @@ public class EmailController {
 
         MessageResponse response =
                 emailService.confirmVerificationCode(email, code);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     // Send reset password email.
@@ -46,6 +47,6 @@ public class EmailController {
         String email = request.getEmail();
 
         MessageResponse response = emailService.sendResetPasswordEmail(email);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

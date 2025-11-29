@@ -1,9 +1,11 @@
 package com.linkty.controllers;
 
+import java.net.URI;
 import java.time.ZonedDateTime;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +35,7 @@ public class UrlController {
         UrlResponse response =
                 urlService.createShortenUrl(originalUrl, activeDate, expireDate,
                         alias, starred, nonMemberCreation, authToken);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // Redirects to the original url using the shorten url.
@@ -41,7 +43,7 @@ public class UrlController {
     public ResponseEntity<Void> redirect(@PathVariable String shortenUrl) {
         String originalUrl = urlService.retrieveOriginalUrl(shortenUrl);
 
-        return ResponseEntity.status(302).header("Location", originalUrl)
-                .build();
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(originalUrl)).build();
     }
 }

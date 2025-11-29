@@ -16,6 +16,7 @@ import com.linkty.entities.postgresql.User;
 import com.linkty.entities.redis.RefreshToken;
 import com.linkty.entities.redis.ResetPassword;
 import com.linkty.dto.response.MessageResponse;
+import com.linkty.dto.response.RegisterResponse;
 import com.linkty.dto.response.TokenResponse;
 import com.linkty.repositories.UserRepository;
 import com.linkty.repositories.RefreshTokenRepository;
@@ -54,7 +55,7 @@ public class UserService {
 
     // Creates an user account.
     @Transactional
-    public MessageResponse createAccount(String email, String password) {
+    public RegisterResponse createAccount(String email, String password) {
         // Check whether a user with the given email already exists.
         if (userRepository.existsByEmail(email)) {
             throw new CustomException(ErrorCode.EMAIL_CONFLICTED);
@@ -65,7 +66,7 @@ public class UserService {
                 .password(passwordEncoder.encode(password)).build();
         userRepository.save(user);
 
-        return new MessageResponse("User account created successfully.");
+        return new RegisterResponse(user.getId(), email, user.getJoinDate());
     }
 
     // Deletes an user account.

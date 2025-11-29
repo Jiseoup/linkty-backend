@@ -3,6 +3,7 @@ package com.linkty.controllers;
 import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,7 @@ import com.linkty.dto.request.LoginRequest;
 import com.linkty.dto.request.ResetPasswordRequest;
 import com.linkty.dto.request.ChangePasswordRequest;
 import com.linkty.dto.response.MessageResponse;
+import com.linkty.dto.response.RegisterResponse;
 import com.linkty.dto.response.TokenResponse;
 import com.linkty.services.UserService;
 import com.linkty.services.CaptchaService;
@@ -26,7 +28,7 @@ public class UserController {
 
     // User registration.
     @PostMapping("/register")
-    public ResponseEntity<MessageResponse> register(
+    public ResponseEntity<RegisterResponse> register(
             @RequestBody @Valid RegisterRequest request) {
         String email = request.getEmail();
         String password = request.getPassword();
@@ -35,8 +37,8 @@ public class UserController {
         // Verify the captcha token.
         captchaService.verifyToken(captchaToken);
 
-        MessageResponse response = userService.createAccount(email, password);
-        return ResponseEntity.ok(response);
+        RegisterResponse response = userService.createAccount(email, password);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // User withdrawal.
@@ -49,7 +51,7 @@ public class UserController {
 
         MessageResponse messageResponse =
                 userService.deleteAccount(authToken, password, response);
-        return ResponseEntity.ok(messageResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(messageResponse);
     }
 
     // User login.
@@ -63,7 +65,7 @@ public class UserController {
 
         TokenResponse tokenResponse =
                 userService.userLogin(email, password, rememberMe, response);
-        return ResponseEntity.ok(tokenResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(tokenResponse);
     }
 
     // User logout.
@@ -71,18 +73,20 @@ public class UserController {
     public ResponseEntity<MessageResponse> logout(
             @RequestHeader("Authorization") String authToken,
             HttpServletResponse response) {
+
         MessageResponse messageResponse =
                 userService.userLogout(authToken, response);
-        return ResponseEntity.ok(messageResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(messageResponse);
     }
 
     // Validate reset password token.
     @GetMapping("/reset-password")
     public ResponseEntity<MessageResponse> validateResetPassword(
             @RequestParam String token) {
+
         MessageResponse response =
                 userService.validateResetPasswordToken(token);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     // Reset user password.
@@ -94,11 +98,11 @@ public class UserController {
 
         MessageResponse response =
                 userService.resetUserPassword(token, password);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     // Change user password.
-    @PostMapping("/change-password")
+    @PatchMapping("/change-password")
     public ResponseEntity<MessageResponse> changePassword(
             @RequestHeader("Authorization") String authToken,
             @RequestBody @Valid ChangePasswordRequest request,
@@ -108,7 +112,7 @@ public class UserController {
 
         MessageResponse messageResponse = userService.changeUserPassword(
                 authToken, currentPassword, newPassword, response);
-        return ResponseEntity.ok(messageResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(messageResponse);
     }
 
     // Reissue access token.
@@ -116,6 +120,6 @@ public class UserController {
     public ResponseEntity<TokenResponse> refresh(
             @CookieValue(required = false) String refreshToken) {
         TokenResponse response = userService.refreshToken(refreshToken);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
