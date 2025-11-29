@@ -19,7 +19,7 @@ import org.springframework.data.redis.core.TimeToLive;
 public class RefreshToken implements Serializable {
 
     @Id
-    private String email;
+    private Long userId;
 
     private String token;
 

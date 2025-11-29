@@ -47,8 +47,8 @@ public class UserService {
     }
 
     // Delete refresh token from Redis and HttpOnly Cookie.
-    private void processLogout(String email, HttpServletResponse response) {
-        refreshTokenRepository.deleteById(email);
+    private void processLogout(Long userId, HttpServletResponse response) {
+        refreshTokenRepository.deleteById(userId);
         clearRefreshTokenCookie(response);
     }
 
@@ -72,12 +72,12 @@ public class UserService {
     @Transactional
     public MessageResponse deleteAccount(String authToken, String password,
             HttpServletResponse response) {
-        // Get email from the provided authToken.
-        String email =
-                jwtProvider.getClaimsFromBearerToken(authToken).getSubject();
+        // Get user id from the provided authToken.
+        Long userId = jwtProvider.getClaimsFromBearerToken(authToken)
+                .get("userId", Long.class);
 
-        // Retrieve the User entity by email.
-        User user = userRepository.findByEmail(email).orElseThrow(
+        // Retrieve the User entity by id.
+        User user = userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // Validate user password.
@@ -89,7 +89,7 @@ public class UserService {
         userRepository.delete(user);
 
         // Process Logout: Delete refresh token from redis and cookie.
-        processLogout(email, response);
+        processLogout(userId, response);
 
         return new MessageResponse("User account deleted successfully.");
     }
@@ -132,7 +132,7 @@ public class UserService {
         }
 
         // Build and save the RefreshToken in Redis.
-        RefreshToken redisRefreshToken = RefreshToken.builder().email(email)
+        RefreshToken redisRefreshToken = RefreshToken.builder().userId(userId)
                 .token(refreshToken).expire(timeToLive).build();
         refreshTokenRepository.save(redisRefreshToken);
 
@@ -144,12 +144,12 @@ public class UserService {
     // Handles user logout process.
     public MessageResponse userLogout(String authToken,
             HttpServletResponse response) {
-        // Get email from the provided authToken.
-        String email =
-                jwtProvider.getClaimsFromBearerToken(authToken).getSubject();
+        // Get user id from the provided authToken.
+        Long userId = jwtProvider.getClaimsFromBearerToken(authToken)
+                .get("userId", Long.class);
 
         // Process Logout: Delete refresh token from redis and cookie.
-        processLogout(email, response);
+        processLogout(userId, response);
 
         return new MessageResponse("User logged out successfully.");
     }
@@ -195,12 +195,12 @@ public class UserService {
     public MessageResponse changeUserPassword(String authToken,
             String currentPassword, String newPassword,
             HttpServletResponse response) {
-        // Get email from the provided authToken.
-        String email =
-                jwtProvider.getClaimsFromBearerToken(authToken).getSubject();
+        // Get user id from the provided authToken.
+        Long userId = jwtProvider.getClaimsFromBearerToken(authToken)
+                .get("userId", Long.class);
 
         // Retrieve the User entity by email.
-        User user = userRepository.findByEmail(email).orElseThrow(
+        User user = userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // Validate current user password.
@@ -212,7 +212,7 @@ public class UserService {
         user.changePassword(passwordEncoder.encode(newPassword));
 
         // Process Logout: Delete refresh token from redis and cookie.
-        processLogout(email, response);
+        processLogout(userId, response);
 
         return new MessageResponse("Change user password successfully.");
     }
@@ -226,7 +226,7 @@ public class UserService {
 
         // Retrieve the refresh token stored in Redis by email.
         RefreshToken redisRefreshToken =
-                refreshTokenRepository.findById(email).orElseThrow(
+                refreshTokenRepository.findById(userId).orElseThrow(
                         () -> new CustomException(ErrorCode.INVALID_TOKEN));
 
         // Validate refresh token.
